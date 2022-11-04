@@ -8,6 +8,7 @@ from .convert_action import convert_action
 from .initialize_observe_space import initialize_observe_space
 from .initialize_players import initialize_players
 from .initialize_tasks import initialize_tasks
+from .judge import judge
 from .render_state_with_rgb_array import render_state_with_rgb_array
 from .reset_failed_to_move import reset_failed_to_move
 from .share_dead import share_dead
