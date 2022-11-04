@@ -17,6 +17,7 @@ class PlayerState:
     others_dead: List[bool]
     others_sus: Dict[str, Dict[str, float]]
     failed_to_move: bool
+    report_available: bool
     cooltime: int
 
     def __init__(self, role: int, position: Tuple[int, int]):
@@ -37,6 +38,7 @@ class PlayerState:
             for _ in range(config.num_players - 1)
         ]
         self.failed_to_move = False
+        self.report_available = False
         self.cooltime = 0
 
 
