@@ -94,7 +94,7 @@ class AUEnv(gym.Env):
             judge = controller.judge(self.state)
             observation = controller.state_to_observation(self.state)
             if judge != "continue":
-                rewards = controller.calc_reward_on_terminated(self.state)
+                rewards = controller.calc_reward_on_terminated(self.state, judge)
                 info = {"state": self.state, "rewards": rewards}
                 return observation, rewards, True, False, info
             else:
