@@ -83,12 +83,15 @@ class AUEnv(gym.Env):
         )
 
     def step(self, action):
-        controller.updateSUS(self.state)
+        cur_action = controller.convert_action(action)
+
+        controller.update_sus(cur_action, self.state)
         controller.reset_failed_to_move(self.state)
 
         if self.meeting:
             controller.share_sus(self.state)
-            judge = controller.tally_the_votes(self.state)
+            controller.tally_the_votes(self.state)
+            judge = controller.judge(self.state)
             observation = controller.state_to_observation(self.state)
             if judge != "continue":
                 rewards = controller.calc_reward_on_terminated(self.state)
@@ -100,7 +103,7 @@ class AUEnv(gym.Env):
                 info = {"state": self.state, "rewards": rewards}
                 return observation, rewards, False, False, info
 
-        if controller.someone_reported(action, self.state):
+        if controller.someone_reported(cur_action, self.state):
             controller.share_dead(self.state)
             controller.share_sus(self.state)
             self.state.meeting = True
@@ -109,8 +112,8 @@ class AUEnv(gym.Env):
             info = {"state": self.state, "rewards": rewards}
             return observation, rewards, False, False, info
 
-        controller.apply_kill(action, self.state)
-        controller.apply_move(action, self.state)
+        controller.apply_kill(cur_action, self.state)
+        controller.apply_move(cur_action, self.state)
         controller.update_task_progress(self.state)
         controller.update_cooltimes(self.state)
 

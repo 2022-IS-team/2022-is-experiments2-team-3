@@ -4,6 +4,7 @@ from .calc_reward_on_meeting import calc_reward_on_meeting
 from .calc_reward_on_reported import calc_reward_on_reported
 from .calc_reward_on_terminated import calc_reward_on_terminated
 from .calc_reward_on_working import calc_reward_on_working
+from .convert_action import convert_action
 from .initialize_observe_space import initialize_observe_space
 from .initialize_players import initialize_players
 from .initialize_tasks import initialize_tasks
