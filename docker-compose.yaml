@@ -1,0 +1,11 @@
+version: '3'
+services:
+  dev:
+    build: docker/dev
+    volumes:
+      - .:/workspace/2022-is-experiments2-team-3
+      - ~/.ssh/id_ed25519:/root/.ssh/id_ed25519
+      - ~/.gitconfig:/root/.gitconfig
+    ports:
+      - "20027:22"
+    
