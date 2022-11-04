@@ -118,8 +118,9 @@ class AUEnv(gym.Env):
             rewards = controller.calc_reward_on_terminated(self.state)
             info = {"state": self.state, "rewards": rewards}
             return observation, rewards, True, False, info
-        
+
         controller.apply_move(cur_action, self.state)
+        controller.update_report_availability(self.state)
         controller.update_task_progress(self.state)
         controller.update_cooltimes(self.state)
 

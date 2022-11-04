@@ -19,6 +19,8 @@ class PlayerState:
     failed_to_move: bool
     report_available: bool
     cooltime: int
+    died_at: Tuple[int, int] or None
+    reported: bool
 
     def __init__(self, role: int, position: Tuple[int, int]):
         """__init__
@@ -40,6 +42,8 @@ class PlayerState:
         self.failed_to_move = False
         self.report_available = False
         self.cooltime = 0
+        self.died_at = None
+        self.reported = False
 
 
 class TaskState:
