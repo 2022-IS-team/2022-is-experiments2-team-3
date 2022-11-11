@@ -13,5 +13,3 @@ def reset_failed_to_move(state: GameState) -> None:
     """
     for i in state.players:
         i.failed_to_move = False
-    
-    pass
