@@ -7,8 +7,9 @@ def reset_failed_to_move(state: GameState) -> None:
     各プレイヤーの壁衝突判定をリセットする
     state.playersの全ての要素に対して、以下を実行する
     1. failed_to_moveをFalseにする
-
+    
     Args:
         state (GameState): 現在のゲーム情報
     """
-    pass
+    for i in state.players:
+        i.failed_to_move = False
