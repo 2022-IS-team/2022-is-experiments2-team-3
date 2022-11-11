@@ -11,9 +11,10 @@ def test_apply_kill():
               "1":PlayerAction(0,False,False,[0.2,0.3,0.4,0.5]),
               "2":PlayerAction(0,False,False,[0.4,0.5,0.6,0.7]),
               "3":PlayerAction(0,False,False,[0.6,0.7,0.8,0.9]),
-              "4":PlayerAction(1,False,True,[0.8,0.9,0.0,0.1])}
+              "4":PlayerAction(0,False,True,[0.8,0.9,0.0,0.1])}
     state = GameState(players=[PlayerState(0,(0,0)) for _ in range(5)], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=np.ndarray((config.map_height,config.map_width)))
     state.players[3].position = (2,2)
+    state.players[4].role = 1
     state.players[4].position = (2,2)
     state.players[4].cooltime = 0
     apply_kill(action=action,state=state)
@@ -28,10 +29,11 @@ def test_crew_wants_kill():
               "1":PlayerAction(0,False,False,[0.2,0.3,0.4,0.5]),
               "2":PlayerAction(0,False,False,[0.4,0.5,0.6,0.7]),
               "3":PlayerAction(0,False,True,[0.6,0.7,0.8,0.9]),
-              "4":PlayerAction(1,False,False,[0.8,0.9,0.0,0.1])}
+              "4":PlayerAction(0,False,False,[0.8,0.9,0.0,0.1])}
     state = GameState(players=[PlayerState(0,(0,0)) for _ in range(5)], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=np.ndarray((config.map_height,config.map_width)))
     state.players[3].position = (2,2)
     state.players[3].cooltime = 0
+    state.players[4].role = 1
     state.players[4].position = (2,2)
     apply_kill(action=action,state=state)
     assert not state.players[4].dead
@@ -44,10 +46,11 @@ def test_deadbody_cannot_kill():
               "1":PlayerAction(0,False,False,[0.2,0.3,0.4,0.5]),
               "2":PlayerAction(0,False,False,[0.4,0.5,0.6,0.7]),
               "3":PlayerAction(0,False,False,[0.6,0.7,0.8,0.9]),
-              "4":PlayerAction(1,False,True,[0.8,0.9,0.0,0.1])}
+              "4":PlayerAction(0,False,True,[0.8,0.9,0.0,0.1])}
     state = GameState(players=[PlayerState(0,(0,0)) for _ in range(5)], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=np.ndarray((config.map_height,config.map_width)))
     state.players[3].position = (2,2)
     state.players[4].position = (2,2)
+    state.players[4].role = 1
     state.players[4].cooltime = 0
     state.players[4].dead = True
     apply_kill(action=action,state=state)
@@ -61,9 +64,10 @@ def test_in_cooltime():
               "1":PlayerAction(0,False,False,[0.2,0.3,0.4,0.5]),
               "2":PlayerAction(0,False,False,[0.4,0.5,0.6,0.7]),
               "3":PlayerAction(0,False,False,[0.6,0.7,0.8,0.9]),
-              "4":PlayerAction(1,False,True,[0.8,0.9,0.0,0.1])}
+              "4":PlayerAction(0,False,True,[0.8,0.9,0.0,0.1])}
     state = GameState(players=[PlayerState(0,(0,0)) for _ in range(5)], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=np.ndarray((config.map_height,config.map_width)))
     state.players[3].position = (2,2)
+    state.players[4].role = 1
     state.players[4].position = (2,2)
     state.players[4].cooltime = 1
     apply_kill(action=action,state=state)
@@ -77,9 +81,10 @@ def test_there_is_no_crew():
               "1":PlayerAction(0,False,False,[0.2,0.3,0.4,0.5]),
               "2":PlayerAction(0,False,False,[0.4,0.5,0.6,0.7]),
               "3":PlayerAction(0,False,False,[0.6,0.7,0.8,0.9]),
-              "4":PlayerAction(1,False,True,[0.8,0.9,0.0,0.1])}
+              "4":PlayerAction(0,False,True,[0.8,0.9,0.0,0.1])}
     state = GameState(players=[PlayerState(0,(0,0)) for _ in range(5)], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=np.ndarray((config.map_height,config.map_width)))
     state.players[3].position = (2,1)
+    state.players[4].role = 1
     state.players[4].position = (2,2)
     state.players[4].cooltime = 0
     apply_kill(action=action,state=state)
@@ -92,10 +97,12 @@ def test_neighbor_is_imposter():
     action = {"0":PlayerAction(0,False,False,[0.0,0.1,0.2,0.3]),
               "1":PlayerAction(0,False,False,[0.2,0.3,0.4,0.5]),
               "2":PlayerAction(0,False,False,[0.4,0.5,0.6,0.7]),
-              "3":PlayerAction(1,False,False,[0.6,0.7,0.8,0.9]),
-              "4":PlayerAction(1,False,True,[0.8,0.9,0.0,0.1])}
+              "3":PlayerAction(0,False,False,[0.6,0.7,0.8,0.9]),
+              "4":PlayerAction(0,False,True,[0.8,0.9,0.0,0.1])}
     state = GameState(players=[PlayerState(0,(0,0)) for _ in range(5)], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=np.ndarray((config.map_height,config.map_width)))
+    state.players[3].role = 1
     state.players[3].position = (2,2)
+    state.players[4].role = 1
     state.players[4].position = (2,2)
     state.players[4].cooltime = 0
     apply_kill(action=action,state=state)
@@ -109,10 +116,11 @@ def test_already_dead():
               "1":PlayerAction(0,False,False,[0.2,0.3,0.4,0.5]),
               "2":PlayerAction(0,False,False,[0.4,0.5,0.6,0.7]),
               "3":PlayerAction(0,False,False,[0.6,0.7,0.8,0.9]),
-              "4":PlayerAction(1,False,True,[0.8,0.9,0.0,0.1])}
+              "4":PlayerAction(0,False,True,[0.8,0.9,0.0,0.1])}
     state = GameState(players=[PlayerState(0,(0,0)) for _ in range(5)], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=np.ndarray((config.map_height,config.map_width)))
     state.players[3].position = (2,2)
     state.players[3].dead = True
+    state.players[4].role = 1
     state.players[4].position = (2,2)
     state.players[4].cooltime = 0
     apply_kill(action=action,state=state)
