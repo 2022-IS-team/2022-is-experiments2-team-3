@@ -1,4 +1,4 @@
-TARGET=someone_reported
+TARGET=update_sus
 
 .PHONY: start
 start:
