@@ -8,7 +8,7 @@ services:
   #     - ~/.ssh/id_ed25519:/root/.ssh/id_ed25519
   #     - ~/.gitconfig:/root/.gitconfig
   #   ports:
-  #     - "20027:22"
+  #     - "10027:22"
   test:
     container_name: aurl-test
     build: docker/test
