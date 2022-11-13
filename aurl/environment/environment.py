@@ -70,7 +70,9 @@ class AUEnv(gym.Env):
                 spaces.Discrete(5),  # move
                 spaces.Discrete(2),  # report
                 spaces.Discrete(2),  # kill
-                spaces.Box(low=0.0, high=1.0, shape=(), dtype=np.float32),  # sus
+                spaces.Box(
+                    low=0.0, high=1.0, shape=(config.num_players - 1,), dtype=np.float32
+                ),  # sus
             ]
         )
 
