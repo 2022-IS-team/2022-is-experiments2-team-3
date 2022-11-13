@@ -18,4 +18,23 @@ def tally_the_votes(state: GameState) -> None:
     Args:
         state (GameState): 現在のゲーム情報
     """
-    pass
+    players_num = len(state.players)
+    vote = [0] * players_num
+    for i in range(players_num):
+      sus_val = state.players[i].sus.values()
+      max_sus = max(sus_val)
+      max_ind = sus_val.index(max_sus)
+      if max(sus_val) > vote_threshould and i >= max_ind:
+        vote[max_ind+1] = vote[max_ind+1]+1
+      elif max(sus_val) > vote_threshould and i < max_ind:
+        vote[max_ind] = vote[max_ind]+1
+    max_vote = max(vote)
+    sum_vote = sum(vote)
+    count_max = vote.count(max_vote)
+    max_index = vote.index(max_vote)
+    if sum_vote < players_num / 2:
+      pass
+    elif count_max > 1:
+      pass
+    else:
+      state.players[max_index].dead = True
