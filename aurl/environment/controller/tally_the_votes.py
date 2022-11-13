@@ -24,9 +24,9 @@ def tally_the_votes(state: GameState) -> None:
       sus_val = state.players[i].sus.values()
       max_sus = max(sus_val)
       max_ind = sus_val.index(max_sus)
-      if max(sus_val) > vote_threshould and i >= max_ind:
+      if max(sus_val) > config.vote_threshould and i >= max_ind:
         vote[max_ind+1] = vote[max_ind+1]+1
-      elif max(sus_val) > vote_threshould and i < max_ind:
+      elif max(sus_val) > config.vote_threshould and i < max_ind:
         vote[max_ind] = vote[max_ind]+1
     max_vote = max(vote)
     sum_vote = sum(vote)
