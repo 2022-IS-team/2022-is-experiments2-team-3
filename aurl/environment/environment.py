@@ -85,6 +85,10 @@ class AUEnv(gym.Env):
         )
 
     def step(self, action):
+        err_msg = f"{action!r} ({type(action)}) invalid"
+        assert self.action_space.contains(action), err_msg
+        assert self.state is not None, "Call reset before using step method."
+
         cur_action = controller.convert_action(action)
 
         controller.update_sus(cur_action, self.state)
