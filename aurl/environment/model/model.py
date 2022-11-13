@@ -14,7 +14,7 @@ class PlayerState:
     dead: bool
     position: Tuple[int, int]
     sus: Dict[str, float]
-    others_dead: List[bool]
+    others_dead: Dict[str, bool]
     others_sus: Dict[str, Dict[str, float]]
     failed_to_move: bool
     report_available: bool
@@ -35,11 +35,12 @@ class PlayerState:
         self.dead = False
         self.position = position
         self.sus = [0.0 for _ in range(config.num_players - 1)]
-        self.others_dead = [False for _ in range(config.num_players - 1)]
+        self.others_dead = {}
         self.others_sus = {}
         for i in range(config.num_players):
             if i == self_idx:
                 continue
+            self.others_dead[str(i)] = False
             sus = {}
             for j in range(config.num_players):
                 if i == j:
