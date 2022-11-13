@@ -26,4 +26,18 @@ def someone_reported(action: Dict[str, PlayerAction], state: GameState) -> bool:
     Returns:
         bool: 通報が有効であればTrue
     """
-    pass
+    for a, p in zip(action.values(), state.players):
+        if not a.report:
+            continue
+        if not p.report_available:
+            continue
+        for q in state.players:
+            if q.role != 0:
+                continue
+            if not q.dead:
+                continue
+            if q.reported:
+                continue
+            q.reported = True
+            return True
+    return False
