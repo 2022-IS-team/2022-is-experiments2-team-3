@@ -24,7 +24,7 @@ def apply_move(action: Dict[str, PlayerAction], state: GameState) -> None:
         if not (p.move == 0):
             px = state.players[i].position[1] + xdir[p.move - 1]
             py = state.players[i].position[0] + ydir[p.move - 1]
-            if (((px < 0) or (px >= len(state.game_map[0])) or (py < 0) or (py >= len(state.game_map))) or (state.game_map[py][px] == 1)):
+            if (((px < 0) or (px >= len(state.game_map[i])) or (py < 0) or (py >= len(state.game_map))) or (state.game_map[py][px] == 1)):
                 state.players[i].failed_to_move = True
             else:
                 l = list(state.players[i].position)
