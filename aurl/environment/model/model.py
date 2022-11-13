@@ -22,12 +22,13 @@ class PlayerState:
     died_at: Tuple[int, int] or None
     reported: bool
 
-    def __init__(self, role: int, position: Tuple[int, int]):
+    def __init__(self, role: int, position: Tuple[int, int], self_idx: int):
         """__init__
 
         Args:
             role (int): プレイヤーの役 0=crew 1=imposter
             position (Tuple[int, int]): 初期座標
+            self_idx (int): 自プレイヤーのインデックス
         """
         assert role == 0 or role == 1
         self.role = role
@@ -35,10 +36,16 @@ class PlayerState:
         self.position = position
         self.sus = [0.0 for _ in range(config.num_players - 1)]
         self.others_dead = [False for _ in range(config.num_players - 1)]
-        self.others_sus = [
-            [0 for _ in range(config.num_players - 1)]
-            for _ in range(config.num_players - 1)
-        ]
+        self.others_sus = {}
+        for i in range(config.num_players):
+            if i == self_idx:
+                continue
+            sus = {}
+            for j in range(config.num_players):
+                if i == j:
+                    continue
+                sus[str(j)] = 0.0
+            self.others_sus[str(i)] = sus
         self.failed_to_move = False
         self.report_available = False
         self.cooltime = 0
