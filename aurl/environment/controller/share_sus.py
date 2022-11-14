@@ -11,9 +11,10 @@ def share_sus(state: GameState) -> None:
     Args:
         state (GameState): 現在のゲーム情報
     """
-    for i,p in enumerate(state.players):
+    for i, p in enumerate(state.players):
         others_sus = {}
-        for j,q in enumerate(state.players):
-            if i==j: continue
-            others_sus[str(j)]= q.sus
-            state.players[i].others_sus= others_sus 
+        for j, q in enumerate(state.players):
+            if i == j:
+                continue
+            others_sus[str(j)] = q.sus
+            state.players[i].others_sus = others_sus
