@@ -13,4 +13,10 @@ def calc_reward_on_working(state: GameState) -> Dict[str, float]:
     Returns:
         Dict[str, float]: 報酬
     """
-    pass
+    rewards = {}
+    for i, p in enumerate(state.players):
+        reward = 0
+        if p.failed_to_move:
+            reward -= 1
+        rewards[str(i)] = reward
+    return rewards

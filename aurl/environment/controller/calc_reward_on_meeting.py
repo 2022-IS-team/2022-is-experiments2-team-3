@@ -13,4 +13,13 @@ def calc_reward_on_meeting(state: GameState) -> Dict[str, float]:
     Returns:
         Dict[str, float]: 報酬
     """
-    pass
+    rewards = {}
+    for i, p in enumerate(state.players):
+        if p.role == 0:
+            rewards[str(i)] = 0
+        elif p.role == 1:
+            imposters = sum(
+                [1 if not p.dead and p.role == 1 else 0 for p in state.players]
+            )
+            rewards[str(i)] = 10 * imposters
+    return rewards

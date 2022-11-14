@@ -14,4 +14,16 @@ def calc_reward_on_terminated(state: GameState, judge: str) -> Dict[str, float]:
     Returns:
         Dict[str, float]: 報酬
     """
-    pass
+    rewards = {}
+    for i, p in enumerate(state.players):
+        if p.role == 0:
+            if judge == "crew":
+                rewards[str(i)] = 100
+            elif judge == "imposter":
+                rewards[str(i)] = -100
+        elif p.role == 1:
+            if judge == "crew":
+                rewards[str(i)] = -100
+            elif judge == "imposter":
+                rewards[str(i)] = 100
+    return rewards
