@@ -10,7 +10,7 @@ def define_spaces():
     observation_space, action_spaceを定義
     """
     player_obs_space = spaces.Dict(
-        {
+        spaces={
             "dead": spaces.Discrete(2),
             "position": spaces.Box(
                 low=np.array([0.0, 0.0]),

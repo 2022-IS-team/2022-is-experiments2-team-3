@@ -18,6 +18,8 @@ def convert_action(action) -> Dict[str, PlayerAction]:
         sus = {}
         for j, sus_value in enumerate(a[3]):
             sus[str(j if j < int(i) else j + 1)] = sus_value
-        player_action = PlayerAction(a[0], a[1] == 1, a[2] == 1, sus)
+        player_action = PlayerAction(
+            a[0], a[1] == 1, a[2] == 1, [v for v in sus.values()]
+        )
         out[i] = player_action
     return out

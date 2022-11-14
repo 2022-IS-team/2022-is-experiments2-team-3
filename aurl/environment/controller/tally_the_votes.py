@@ -18,23 +18,31 @@ def tally_the_votes(state: GameState) -> None:
     Args:
         state (GameState): 現在のゲーム情報
     """
-    players_num = len(state.players)
-    vote = [0] * players_num
-    for i in range(players_num):
-      sus_val = state.players[i].sus.values()
-      max_sus = max(sus_val)
-      max_ind = sus_val.index(max_sus)
-      if max(sus_val) > config.vote_threshould and i >= max_ind:
-        vote[max_ind+1] = vote[max_ind+1]+1
-      elif max(sus_val) > config.vote_threshould and i < max_ind:
-        vote[max_ind] = vote[max_ind]+1
-    max_vote = max(vote)
-    sum_vote = sum(vote)
-    count_max = vote.count(max_vote)
-    max_index = vote.index(max_vote)
-    if sum_vote < players_num / 2:
-      pass
-    elif count_max > 1:
-      pass
-    else:
-      state.players[max_index].dead = True
+    votes = [0 for _ in range(config.num_players + 1)]
+    for i, p in enumerate(state.players):
+        max_sus = -1
+        max_key = None
+        for k, v in p.sus.items():
+            if v >= config.vote_threshould and v > max_sus:
+                max_sus = v
+                max_key = k
+        if max_key is None:
+            votes[config.num_players] += 1
+        else:
+            votes[int(max_key)] += 1
+
+    max_votes = 0
+    max_idx = None
+    for i, v in enumerate(votes):
+        if v == max_votes:
+            max_idx = None
+        elif v > max_votes:
+            max_votes = v
+            max_idx = i
+
+    if max_idx is None:
+        return
+    if max_idx == config.num_players:
+        return
+
+    state.players[max_idx].dead = True
