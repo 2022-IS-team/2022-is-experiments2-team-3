@@ -4,7 +4,7 @@ from aurl.environment import config
 import numpy as np
 
 
-def test_plane_state():
+def test_plain_state():
     """
     初期状態の変換
     """
