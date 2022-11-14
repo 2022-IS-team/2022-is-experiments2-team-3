@@ -22,10 +22,10 @@ def test_1():
     )
     players = initialize_players(game_map=game_map)
     assert len(players) == config.num_players
-    num_imposter = sum([1 if p.role == 1 else 0 for p in players.values()])
+    num_imposter = sum([1 if p.role == 1 else 0 for p in players])
     assert num_imposter == config.num_imposter
-    assert players["0"].position == (0, 3)
-    assert players["1"].position == (0, 4)
-    assert players["2"].position == (0, 5)
-    assert players["3"].position == (1, 3)
-    assert players["4"].position == (1, 4)
+    assert players[0].position == (0, 3)
+    assert players[1].position == (0, 4)
+    assert players[2].position == (0, 5)
+    assert players[3].position == (1, 3)
+    assert players[4].position == (1, 4)

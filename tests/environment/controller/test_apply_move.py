@@ -12,7 +12,7 @@ def test_noone_moved():
               "2":PlayerAction(0,False,False,[0.4,0.5,0.6,0.7]),
               "3":PlayerAction(0,False,False,[0.6,0.7,0.8,0.9]),
               "4":PlayerAction(0,False,False,[0.8,0.9,0.0,0.1])}
-    game_map = np.ndarray([
+    game_map = np.array([
         [1,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,0,1],
         [1,0,1,1,0,1,0,1],
@@ -23,7 +23,7 @@ def test_noone_moved():
         [1,1,1,1,1,1,1,1],
     ])
     positions = [(1,1),(2,1),(2,4),(4,3),(6,6)]
-    state = GameState(players=[PlayerState(0,p) for p in positions], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=game_map)
+    state = GameState(players=[PlayerState(0,p,i) for i,p in enumerate(positions)], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=game_map)
     apply_move(action=action,state=state)
     assert state.players[0].position == (1,1)
     assert state.players[1].position == (2,1)
@@ -40,7 +40,7 @@ def test_everybody_moved():
               "2":PlayerAction(1,False,False,[0.4,0.5,0.6,0.7]),
               "3":PlayerAction(3,False,False,[0.6,0.7,0.8,0.9]),
               "4":PlayerAction(4,False,False,[0.8,0.9,0.0,0.1])}
-    game_map = np.ndarray([
+    game_map = np.array([
         [1,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,0,1],
         [1,0,1,1,0,1,0,1],
@@ -51,7 +51,7 @@ def test_everybody_moved():
         [1,1,1,1,1,1,1,1],
     ])
     positions = [(1,1),(2,1),(2,4),(4,3),(6,6)]
-    state = GameState(players=[PlayerState(0,p) for p in positions], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=game_map)
+    state = GameState(players=[PlayerState(0,p,i) for i,p in enumerate(positions)], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=game_map)
     apply_move(action=action,state=state)
     assert state.players[0].position == (1,2)
     assert state.players[1].position == (3,1)
@@ -68,7 +68,7 @@ def test_collide_with_wall():
               "2":PlayerAction(1,False,False,[0.4,0.5,0.6,0.7]),
               "3":PlayerAction(3,False,False,[0.6,0.7,0.8,0.9]),
               "4":PlayerAction(4,False,False,[0.8,0.9,0.0,0.1])}
-    game_map = np.ndarray([
+    game_map = np.array([
         [1,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,0,1],
         [1,0,1,1,0,1,0,1],
@@ -79,7 +79,7 @@ def test_collide_with_wall():
         [1,1,1,1,1,1,1,1],
     ])
     positions = [(1,1),(2,1),(2,4),(4,3),(6,6)]
-    state = GameState(players=[PlayerState(0,p) for p in positions], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=game_map)
+    state = GameState(players=[PlayerState(0,p,i) for i,p in enumerate(positions)], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=game_map)
     apply_move(action=action,state=state)
     assert state.players[0].position == (1,1)
     assert state.players[0].failed_to_move
@@ -98,7 +98,7 @@ def test_goto_outside():
               "2":PlayerAction(2,False,False,[0.4,0.5,0.6,0.7]),
               "3":PlayerAction(3,False,False,[0.6,0.7,0.8,0.9]),
               "4":PlayerAction(3,False,False,[0.8,0.9,0.0,0.1])}
-    game_map = np.ndarray([
+    game_map = np.array([
         [0,0,1,1,1,1,1,1],
         [1,0,0,0,0,0,0,0],
         [1,0,1,1,0,1,0,1],
@@ -109,7 +109,7 @@ def test_goto_outside():
         [1,1,1,1,1,1,0,1],
     ])
     positions = [(0,0),(0,1),(1,7),(4,3),(7,6)]
-    state = GameState(players=[PlayerState(0,p) for p in positions], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=game_map)
+    state = GameState(players=[PlayerState(0,p,i) for i,p in enumerate(positions)], tasks=[TaskState((0,0),0) for _ in range(15)], game_map=game_map)
     apply_move(action=action,state=state)
     assert state.players[0].position == (0,0)
     assert state.players[0].failed_to_move
