@@ -2,6 +2,8 @@ from . import controller
 import gym
 from . import config
 from . import model
+from typing import Dict, Union, Any
+import numpy as np
 
 
 class AUEnv(gym.Env):
@@ -23,7 +25,7 @@ class AUEnv(gym.Env):
         controller.update_sus(cur_action, self.state)
         controller.reset_failed_to_move(self.state)
 
-        if self.meeting:
+        if self.state.meeting:
             controller.share_sus(self.state)
             controller.tally_the_votes(self.state)
             judge = controller.judge(self.state)
@@ -50,7 +52,10 @@ class AUEnv(gym.Env):
         controller.apply_kill(cur_action, self.state)
         judge = controller.judge(self.state)
         if judge != "continue":
-            rewards = controller.calc_reward_on_terminated(self.state)
+            observation = controller.state_to_observation(self.state)
+            rewards = controller.calc_reward_on_terminated(
+                state=self.state, judge=judge
+            )
             info = {"state": self.state, "rewards": rewards}
             return observation, rewards, True, False, info
 
@@ -64,11 +69,17 @@ class AUEnv(gym.Env):
         info = {"state": self.state, "rewards": rewards}
         return observation, rewards, False, False, info
 
-    def reset(self, seed=None, options=None):
+    def reset(self, seed=None, options: Union[Dict[str, Any], None] = None):
         super().reset(seed=seed)
-        players = controller.initialize_players()
-        tasks = controller.initialize_tasks()
-        self.state = model.GameState(players=players, tasks=tasks)
+        game_map = (
+            options["game_map"]
+            if options != None and "game_map" in options
+            else config.default_game_map
+        )
+        game_map = np.array(game_map)
+        players = controller.initialize_players(game_map)
+        tasks = controller.initialize_tasks(game_map)
+        self.state = model.GameState(players=players, tasks=tasks, game_map=game_map)
 
         observation = controller.state_to_observation(self.state)
         info = {
@@ -79,6 +90,6 @@ class AUEnv(gym.Env):
 
     def render(self):
         if self.render_mode == "rgb_array":
-            return controller.render_state_rgb_array(self.state)
+            return controller.render_state_with_rgb_array(self.state)
         else:
             return None

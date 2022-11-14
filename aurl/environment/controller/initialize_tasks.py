@@ -1,10 +1,10 @@
 from ..model import TaskState
-from typing import Dict
+from typing import List
 from .. import config
 import numpy as np
 
 
-def initialize_tasks(game_map: np.ndarray) -> Dict[str, TaskState]:
+def initialize_tasks(game_map: np.ndarray) -> List[TaskState]:
     tasks = {}
     mask = game_map == 2
     assert np.count_nonzero(mask) >= config.num_tasks_per_player
@@ -15,4 +15,4 @@ def initialize_tasks(game_map: np.ndarray) -> Dict[str, TaskState]:
             position = (task_position[0][j], task_position[1][j])
             task = TaskState(position=position, assignee=i)
             tasks[str(key)] = task
-    return tasks
+    return [v for v in tasks.values()]
