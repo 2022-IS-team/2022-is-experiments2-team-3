@@ -15,4 +15,18 @@ def update_report_availability(state: GameState) -> None:
     Args:
         state (GameState): 現在のゲーム情報
     """
-    pass
+    for i, p in enumerate(state.players):
+        p.report_available = False
+        for j, q in enumerate(state.players):
+            if i == j:
+                continue
+            if q.role != 0:
+                continue
+            if not q.dead:
+                continue
+            if q.reported:
+                continue
+            if q.died_at != p.position:
+                continue
+            p.report_available = True
+            break
