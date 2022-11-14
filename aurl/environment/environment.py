@@ -45,7 +45,7 @@ class AUEnv(gym.Env):
             controller.share_sus(self.state)
             self.state.meeting = True
             observation = controller.state_to_observation(self.state)
-            rewards = controller.calc_reward_on_reported(self.state)
+            rewards = controller.calc_reward_on_reported(state=self.state)
             info = {"state": self.state, "rewards": rewards}
             return observation, rewards, False, False, info
 
@@ -91,6 +91,7 @@ class AUEnv(gym.Env):
 
     def render(self):
         if self.render_mode == "rgb_array":
-            return controller.render_state_with_rgb_array(self.state)
+            # return controller.render_state_with_rgb_array(self.state)
+            return None
         else:
             return None
