@@ -77,8 +77,9 @@ class AUEnv(gym.Env):
             else config.default_game_map
         )
         game_map = np.array(game_map)
-        players = controller.initialize_players(game_map)
-        tasks = controller.initialize_tasks(game_map)
+        players = controller.initialize_players(game_map=game_map)
+        roles = [p.role for p in players]
+        tasks = controller.initialize_tasks(game_map=game_map, roles=roles)
         self.state = model.GameState(players=players, tasks=tasks, game_map=game_map)
 
         observation = controller.state_to_observation(self.state)
