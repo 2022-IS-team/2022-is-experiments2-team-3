@@ -7,7 +7,7 @@ import numpy as np
 
 
 class AUEnv(gym.Env):
-    metadata = {"render_modes": ["rgb_array"]}
+    metadata = {"render_modes": ["rgb_array", "ansi"]}
 
     state: model.GameState
 
@@ -93,5 +93,7 @@ class AUEnv(gym.Env):
         if self.render_mode == "rgb_array":
             # return controller.render_state_with_rgb_array(self.state)
             return None
+        elif self.render_mode == "ansi":
+            return controller.render_state_with_text(self.state)
         else:
             return None
