@@ -1,5 +1,5 @@
 from .. import config
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Union
 import numpy as np
 
 
@@ -19,7 +19,7 @@ class PlayerState:
     failed_to_move: bool
     report_available: bool
     cooltime: int
-    died_at: Tuple[int, int] or None
+    died_at: Union[Tuple[int, int], None]
     reported: bool
 
     def __init__(self, role: int, position: Tuple[int, int], self_idx: int):
@@ -34,12 +34,13 @@ class PlayerState:
         self.role = role
         self.dead = False
         self.position = position
-        self.sus = [0.0 for _ in range(config.num_players - 1)]
+        self.sus = {}
         self.others_dead = {}
         self.others_sus = {}
         for i in range(config.num_players):
             if i == self_idx:
                 continue
+            self.sus[str(i)] = 0.0
             self.others_dead[str(i)] = False
             sus = {}
             for j in range(config.num_players):
@@ -117,7 +118,7 @@ class PlayerAction:
     kill: bool
     sus: List[float]
 
-    def __init__(self, move: int, report: bool, kill: bool, sus: Dict[str, float]):
+    def __init__(self, move: int, report: bool, kill: bool, sus: List[float]):
         """__init__
 
         Args:

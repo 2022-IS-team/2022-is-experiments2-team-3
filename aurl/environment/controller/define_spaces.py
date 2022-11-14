@@ -17,6 +17,7 @@ def define_spaces():
                 high=np.array([config.map_height, config.map_width]),
                 dtype=np.uint8,
             ),
+            # 0=移動可能 1=移動不可 2=タスク
             "surroundings": spaces.Dict(
                 {
                     "here": spaces.Discrete(3),
@@ -33,8 +34,9 @@ def define_spaces():
                 shape=(config.num_tasks_per_player,),
                 dtype=np.float32,
             ),
+            # 0=同じマス 1~4=上右下左 5=不明
             "others_pos": spaces.MultiDiscrete(
-                [5 for _ in range(config.num_players - 1)]
+                [6 for _ in range(config.num_players - 1)]
             ),
             "others_dead": spaces.MultiDiscrete(
                 [2 for _ in range(config.num_players - 1)]
@@ -50,12 +52,12 @@ def define_spaces():
         }
     )
 
-    def dup_players(acc, i):
+    def dup_player_obs(acc, i):
         acc[str(i)] = copy.deepcopy(player_obs_space)
         return acc
 
     observation_space = spaces.Dict(
-        functools.reduce(dup_players, range(config.num_players))
+        functools.reduce(dup_player_obs, range(config.num_players), {})
     )
 
     player_action_space = spaces.Tuple(
@@ -69,10 +71,12 @@ def define_spaces():
         ]
     )
 
-    def dup_players(acc, i):
+    def dup_player_act(acc, i):
         acc[str(i)] = copy.deepcopy(player_action_space)
         return acc
 
-    action_space = spaces.Dict(functools.reduce(dup_players, range(config.num_players)))
+    action_space = spaces.Dict(
+        functools.reduce(dup_player_act, range(config.num_players), {})
+    )
 
     return observation_space, action_space
