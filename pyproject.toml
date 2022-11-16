@@ -6,6 +6,13 @@ dependencies = [
   "numpy==1.22.2"
 ]
 
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["aurl"]
+
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools","setuptools-scm"]
 build-backend = "setuptools.build_meta"

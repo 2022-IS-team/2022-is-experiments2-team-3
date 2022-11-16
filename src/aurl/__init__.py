@@ -1,2 +1,2 @@
-from . import environment
-from . import agent
+from .environment import *
+from .agent import *
