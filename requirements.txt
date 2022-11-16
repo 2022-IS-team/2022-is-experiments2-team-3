@@ -1,4 +1,6 @@
-numpy
-gym
+numpy==1.22.2
+gym==0.25.2
 black
 pytest
+setuptools
+build

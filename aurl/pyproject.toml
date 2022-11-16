@@ -1,0 +1,11 @@
+[project]
+name = "aurl"
+version = "0.1.0"
+dependencies = [
+  "gym==0.26.2",
+  "numpy==1.22.2"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
