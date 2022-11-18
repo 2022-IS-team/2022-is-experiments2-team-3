@@ -1,9 +1,9 @@
 [project]
 name = "aurl"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
   "gym==0.26.2",
-  "numpy==1.22.2"
+  "numpy~=1.21.6"
 ]
 
 [tool.setuptools]
