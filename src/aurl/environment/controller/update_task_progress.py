@@ -15,11 +15,4 @@ def update_task_progress(state: GameState) -> None:
     Args:
         state (GameState): 現在のゲーム情報
     """
-    for t in state.tasks:
-        if t.progress == config.num_task_progress_step:
-            continue
-        p = state.players[t.assignee]
-        if p.position == t.position:
-            t.progress += 1
-        else:
-            t.progress = 0
+    
