@@ -12,9 +12,4 @@ def update_cooltimes(state: GameState) -> None:
     Args:
         state (GameState): 現在のゲーム情報
     """
-    for p in state.players:
-        if p.role != 1:
-            continue
-        if p.cooltime == 0:
-            continue
-        p.cooltime -= 1
+    
