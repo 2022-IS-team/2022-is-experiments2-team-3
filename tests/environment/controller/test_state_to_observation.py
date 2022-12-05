@@ -37,20 +37,22 @@ def test_plain_state():
         game_map=game_map,
     )
     observation = state_to_observation(state=state)
-    assert len(observation) == 5
-    assert observation["0"]["dead"] == 0
-    assert np.allclose(observation["1"]["position"], np.array([0, 4]))
-    assert observation["2"]["surroundings"]["up"] == 1
-    assert observation["3"]["surroundings"]["left"] == 1
-    assert observation["4"]["surroundings"]["down"] == 0
-    assert observation["0"]["failed_to_move"] == 0
-    assert np.allclose(observation["1"]["tasks"], np.array([0, 0, 0, 0]))
-    assert observation["2"]["others_pos"][0] == 5
-    assert observation["3"]["others_pos"][0] == 1
-    assert observation["4"]["others_dead"][0] == 0
-    assert np.allclose(observation["0"]["others_sus"], np.zeros((4, 4)))
-    assert np.allclose(observation["1"]["cooltime"], np.array([0]))
-    assert observation["2"]["report_available"] == 0
+    params_per_player = 11 + config.num_tasks_per_player + (config.num_players - 1) * 3
+    assert np.allclose(
+        observation[params_per_player*0:params_per_player*1],
+        np.array([
+            0,0,3/config.map_width, #dead,position
+            0,0.2,0,0,0, #surroundings
+            0, #failed_to_skip
+            0,0,0,0, #tasks
+            2/6,0,3/6,0, #others_pos
+            0,0,0,0, #others_dead
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0, #others_sus
+            0,0 #cooltime,report_available
+        ]))  # fmt:skip
 
 
 def test_surroundings():
