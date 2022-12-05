@@ -60,23 +60,21 @@ def define_spaces():
         functools.reduce(dup_player_obs, range(config.num_players), {})
     )
 
-    player_action_space = spaces.Tuple(
-        [
-            spaces.Discrete(5),  # move
-            spaces.Discrete(2),  # report
-            spaces.Discrete(2),  # kill
-            spaces.Box(
-                low=0.0, high=1.0, shape=(config.num_players - 1,), dtype=np.float32
-            ),  # sus
-        ]
-    )
-
-    def dup_player_act(acc, i):
-        acc[str(i)] = copy.deepcopy(player_action_space)
-        return acc
-
-    action_space = spaces.Dict(
-        functools.reduce(dup_player_act, range(config.num_players), {})
+    """
+    [移動,報告,キル,sus値x(pl数-1)]xpl数 となる
+    移動は
+      0.0<=x<0.2: 停止
+      0.2<=x<0.4: 上
+      0.4<=x<0.6: 右
+      0.6<=x<0.8: 下
+      0.8<=x<=1.0: 左
+    報告・キルは、act_threthouldを超えたら実行判定
+    """
+    action_space = spaces.Box(
+        low=0.0,
+        high=1.0,
+        shape=((2 + config.num_players - 1) * config.num_players,),
+        dtype=np.float32,
     )
 
     return observation_space, action_space
