@@ -1,4 +1,4 @@
-TARGET=update_sus
+TARGET=state_to_observation
 
 .PHONY: start
 start:
@@ -42,6 +42,6 @@ test:
 	@if [ ! -f ./.logging ]; then\
 		touch .logging &&\
 		# pytest -q || : &&\
-		pytest -q tests/environment/controller/test_$(TARGET).py || : &&\
+		python -m pytest -q tests/environment/controller/test_$(TARGET).py || : &&\
 		rm .logging;\
 	fi
