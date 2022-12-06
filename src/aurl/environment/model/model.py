@@ -116,9 +116,9 @@ class PlayerAction:
     move: int
     report: bool
     kill: bool
-    sus: List[float]
+    sus: Dict[str,float]
 
-    def __init__(self, move: int, report: bool, kill: bool, sus: List[float]):
+    def __init__(self, move: int, report: bool, kill: bool, sus: Dict[str,float]):
         """__init__
 
         Args:

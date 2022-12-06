@@ -25,23 +25,23 @@ def state_to_observation(state: GameState) -> np.ndarray:
         game_map = state.game_map
         game_map = np.where(game_map == 3, 0, game_map)
         observation += [
-            game_map[p.position[0]][p.position[1]] * 0.2,
+            game_map[p.position[0]][p.position[1]] / 3,
             (game_map[p.position[0] - 1][p.position[1]] if p.position[0] > 0 else 1)
-            * 0.2,
+            / 3,
             (
                 game_map[p.position[0]][p.position[1] + 1]
                 if p.position[1] < config.map_width - 1
                 else 1
             )
-            * 0.2,
+            / 3,
             (
                 game_map[p.position[0] + 1][p.position[1]]
                 if p.position[0] < config.map_height - 1
                 else 1
             )
-            * 0.2,
+            / 3,
             (game_map[p.position[0]][p.position[1] - 1] if p.position[1] > 0 else 1)
-            * 0.2,
+            / 3,
         ]
         observation += [1.0 if p.failed_to_move else 0.0]
         observation += [

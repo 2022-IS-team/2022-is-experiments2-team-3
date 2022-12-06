@@ -18,19 +18,22 @@ def convert_action(action) -> Dict[str, PlayerAction]:
     out = {}
     params_per_player = 3 + config.num_players - 1
     for i in range(config.num_players):
-        move_raw = action.values()[i * params_per_player + 0]
+        move_raw = action[i * params_per_player + 0]
         move = math.floor(move_raw * 5) if move_raw != 1.0 else 4
-        report_raw = action.values()[i * params_per_player + 1]
+        report_raw = action[i * params_per_player + 1]
         report = report_raw > config.act_threshould
-        kill_raw = action.values()[i * params_per_player + 2]
+        kill_raw = action[i * params_per_player + 2]
         kill = kill_raw > config.act_threshould
-        sus = action[
+        sus_raw = action[
             i * params_per_player
             + 3 : i * params_per_player
             + 3
             + config.num_players
             - 1
-        ].values()
+        ]
+        sus = {}
+        for j, s in enumerate(sus_raw):
+            sus[str(j)] = s
         player_action = PlayerAction(move=move, report=report, kill=kill, sus=sus)
         out[str(i)] = player_action
     return out
