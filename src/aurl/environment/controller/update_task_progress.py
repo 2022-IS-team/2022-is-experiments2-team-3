@@ -15,4 +15,3 @@ def update_task_progress(state: GameState) -> None:
     Args:
         state (GameState): 現在のゲーム情報
     """
-    

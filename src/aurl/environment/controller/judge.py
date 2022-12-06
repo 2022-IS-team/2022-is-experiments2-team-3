@@ -17,4 +17,3 @@ def judge(state: GameState) -> str:
     Returns:
         str: 勝敗判定の結果 "crew"=クルーの勝ち "imposter"=インポスターの勝ち "continue"=ゲーム続行
     """
-    

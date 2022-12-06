@@ -15,4 +15,3 @@ def update_report_availability(state: GameState) -> None:
     Args:
         state (GameState): 現在のゲーム情報
     """
-    

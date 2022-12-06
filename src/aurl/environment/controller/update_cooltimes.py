@@ -12,4 +12,3 @@ def update_cooltimes(state: GameState) -> None:
     Args:
         state (GameState): 現在のゲーム情報
     """
-    

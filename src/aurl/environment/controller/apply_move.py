@@ -16,5 +16,3 @@ def apply_move(action: Dict[str, PlayerAction], state: GameState) -> None:
         action (Dict[str,PlayerAction]): 全プレイヤーの行動
         state (GameState): 現在のゲーム情報
     """
-
-    
