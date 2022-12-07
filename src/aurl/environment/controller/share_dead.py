@@ -11,3 +11,10 @@ def share_dead(state: GameState) -> None:
     Args:
         state (GameState): 現在のゲーム情報
     """
+    for i, p in enumerate(state.players):
+        others_dead = {}
+        for j, q in enumerate(state.players):
+            if i == j:
+                continue
+            others_dead[str(j)] = q.dead
+            state.players[i].others_dead = others_dead
