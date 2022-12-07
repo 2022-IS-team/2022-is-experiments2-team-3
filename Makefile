@@ -18,12 +18,16 @@ build:
 	docker-compose build --no-cache
 
 .PHONY: exec-dev
-exec:
+exec-dev:
 	docker-compose exec dev bash
 
 .PHONY: exec-test
 exec-test:
 	docker-compose exec test bash
+
+.PHONY: start-package-build
+start-package-build:
+	docker-compose exec dev bash -c "cd 2022-is-experiments2-team-3 && python -m build"
 
 .PHONY: start-test
 start-test:
@@ -37,6 +41,7 @@ down:
 test:
 	@if [ ! -f ./.logging ]; then\
 		touch .logging &&\
+		# pytest -q || : &&\
 		pytest -q tests/environment/controller/test_$(TARGET).py || : &&\
 		rm .logging;\
 	fi
