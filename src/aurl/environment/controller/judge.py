@@ -31,11 +31,11 @@ def judge(state: GameState) -> str:
     if num_crew <= num_imposter:
         return "imposter"
 
-    is_task_completed = True
+    task_completed = True
     for t in state.tasks:
         if t.progress < config.num_task_progress_step:
-            is_task_completed = False
+            task_completed = False
             break
-    if is_task_completed:
+    if task_completed:
         return "crew"
     return "continue"
