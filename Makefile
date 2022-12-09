@@ -48,5 +48,5 @@ test:
 
 .PHONY: run
 run:
-	# @pip install -e .
+	@pip install -e .
 	@python -m aurl
