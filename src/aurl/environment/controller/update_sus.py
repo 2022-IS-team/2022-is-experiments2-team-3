@@ -21,4 +21,4 @@ def update_sus(action: Dict[str, PlayerAction], state: GameState) -> None:
             if int(i) == j:
                 continue
             idx = j if j < int(i) else j - 1
-            p.sus[str(j)] = a.sus[idx]
+            p.sus[str(j)] = a.sus[str(idx)]

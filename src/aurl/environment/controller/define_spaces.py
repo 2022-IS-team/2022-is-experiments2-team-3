@@ -41,7 +41,7 @@ def define_spaces():
     action_space = spaces.Box(
         low=0.0,
         high=1.0,
-        shape=((2 + config.num_players - 1) * config.num_players,),
+        shape=((3 + config.num_players - 1) * config.num_players,),
         dtype=np.float32,
     )
 
