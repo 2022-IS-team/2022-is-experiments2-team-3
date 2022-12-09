@@ -17,3 +17,25 @@ def judge(state: GameState) -> str:
     Returns:
         str: 勝敗判定の結果 "crew"=クルーの勝ち "imposter"=インポスターの勝ち "continue"=ゲーム続行
     """
+    num_crew = 0
+    num_imposter = 0
+    for p in state.players:
+        if p.dead:
+            continue
+        if p.role == 0:
+            num_crew += 1
+        else:
+            num_imposter += 1
+    if num_imposter == 0:
+        return "crew"
+    if num_crew <= num_imposter:
+        return "imposter"
+
+    task_completed = True
+    for t in state.tasks:
+        if t.progress < config.num_task_progress_step:
+            task_completed = False
+            break
+    if task_completed:
+        return "crew"
+    return "continue"

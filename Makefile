@@ -41,7 +41,7 @@ down:
 test:
 	@if [ ! -f ./.logging ]; then\
 		touch .logging &&\
-		# pytest -q || : &&\
+		# python -m pytest -q || : &&\
 		python -m pytest -q tests/environment/controller/test_$(TARGET).py || : &&\
 		rm .logging;\
 	fi
