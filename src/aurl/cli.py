@@ -10,11 +10,12 @@ def main():
 
     max_episodes = 100
     max_steps = 500
+    # print(type(env.action_space.sample()))
     for episode in range(max_episodes):
         env.reset()
         render(action=None, env=env, episode=episode, step=-1)
         for step in range(max_steps):
-            action = decide_action()
+            action = env.action_space.sample()
             observation, reward, terminated, truncated, info = env.step(action=action)
             # print(observation, reward, terminated, truncated, info)
             render(action=action, env=env, episode=episode, step=step)
@@ -23,18 +24,6 @@ def main():
 
             if terminated or truncated:
                 break
-
-
-def decide_action():
-    action = {}
-    for i in range(5):
-        action[str(i)] = (
-            np.random.randint(0, 5),
-            np.random.randint(0, 2),
-            np.random.randint(0, 2),
-            np.random.rand(4).tolist(),
-        )
-    return action
 
 
 def render(action, env, episode, step):
@@ -47,24 +36,31 @@ def render(action, env, episode, step):
     lines.append("<Action>")
     action_line = ""
     if not action is None:
-        for k, a in action.items():
-            if a[0] == 0:
+        params_per_player = 7
+        for i in range(5):
+            if action[params_per_player * i] < 1 / 5:
                 d = ""
-            elif a[0] == 1:
+            elif action[params_per_player * i] < 2 / 5:
                 d = "↑"
-            elif a[0] == 2:
+            elif action[params_per_player * i] < 3 / 5:
                 d = "→"
-            elif a[0] == 3:
+            elif action[params_per_player * i] < 4 / 5:
                 d = "↓"
-            elif a[0] == 4:
+            elif action[params_per_player * i] <= 1:
                 d = "←"
             else:
                 d = "E"
             action_line += "P%1s:%1s%1s%1s " % (
-                k,
+                str(i),
                 d,
-                "R" if a[1] == 1 else "",
-                "K" if a[2] == 1 else "",
+                "R"
+                if action[params_per_player * i + 1]
+                >= environment.config.act_threshould
+                else "",
+                "K"
+                if action[params_per_player * i + 2]
+                >= environment.config.act_threshould
+                else "",
             )
     lines.append(action_line)
 

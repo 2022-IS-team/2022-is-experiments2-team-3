@@ -45,3 +45,8 @@ test:
 		python -m pytest -q tests/environment/controller/test_$(TARGET).py || : &&\
 		rm .logging;\
 	fi
+
+.PHONY: run
+run:
+	# @pip install -e .
+	@python -m aurl
