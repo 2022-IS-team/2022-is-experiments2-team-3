@@ -1,28 +1,52 @@
-from .vecenv import VecEnv
+from aurl.agent.vecenv import VecEnv
 from stable_baselines3.ppo.ppo import PPO
-from stable_baselines3.common.utils import obs_as_tensor, safe_mean
-from typing import List, Tuple
+from stable_baselines3.common.utils import obs_as_tensor
+from typing import List
 import numpy as np
-
-import gym
 import torch as th
+import logging
 
 
 class MultiAgentLearner:
     _agents: List[PPO]
     _total_timesteps: int
-    _rollout_buffers: List[List[Tuple[np.ndarray, float]]]
+    _device: th.device
+    _last_obs: List[np.ndarray]
+    _last_episode_starts: np.ndarray
+    _logger: logging.Logger
 
-    def __init__(self, total_timesteps):
+    def __init__(self, total_timesteps, device="cpu"):
         self._agents = [PPO("MlpPolicy", "isteam3/MockAmongUs") for _ in range(5)]
         self._total_timesteps = total_timesteps
-        self._rollout_buffers = [[] for _ in range(5)]
+        self._device = th.device(device)
+        self._logger = logging.getLogger(__name__)
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.DEBUG)
+        self._logger.addHandler(handler)
+        self._logger.setLevel(logging.DEBUG)
 
     def learn(self):
+        self._logger.info("initializing environments")
         envs = VecEnv(3)
 
+        self._logger.info("setting up agents for learning")
+        for agent in self._agents:
+            agent._setup_learn(self._total_timesteps, None)
+
+        self._logger.info("setting up learner for learning")
+        self._setup_learn(envs)
+
+        self._logger.info("start learning")
         for timestep in range(self._total_timesteps):
             self._collect_rollout(envs)
+            self._register_log()
+            self._train()
+
+        self._logger.info("finish learning")
+
+    def _setup_learn(self, envs: VecEnv):
+        self._last_obs = envs.reset()
+        self._last_episode_starts = np.ones(envs.num_env)
 
     def _collect_rollout(self, env: VecEnv) -> None:
         """
@@ -40,71 +64,88 @@ class MultiAgentLearner:
         reward_listは報酬(float)のリスト
         doneはTrueならゲーム終了
         """
-        last_obs = None
-        self.policy.set_training_mode(False)
+        last_episode_starts = None
+        for agent in self._agents:
+            agent.policy.set_training_mode(False)
 
         n_steps = 0
-        self._rollout_buffers = []
+        agent_new_obs = []
 
         while n_steps < 2048:
-            actions_list = []
-            clipped_actions_list = []
-            values_list = []
-            log_probs_list = []
+            agent_actions = []
+            agent_values = []
+            agent_log_probs = []
 
-            for i in range(5):
+            for i, (agent, obs) in enumerate(zip(self._agents, self._last_obs)):
                 with th.no_grad():
-                    obs_tensor = obs_as_tensor(self.last_obs, self.device)
-                    actions, values, log_probs = obs_tensor
-                actions_list[i] = actions.cpu().numpy()
-                log_probs_list[i] = log_probs
+                    obs_tensor = obs_as_tensor(obs, self._device)
+                    actions, values, log_probs = agent.policy(obs_as_tensor)
+                actions = actions.cpu().numpy()
+                clipped_actions = np.clip(actions, 0, 1)
+                agent_actions.append(clipped_actions)
+                agent_values.append(values)
+                agent_log_probs.append(log_probs)
 
-                clipped_actions = actions
-                if isinstance(self.action_space, gym.spaces.Box):
-                    clipped_actions_list[i] = np.clip(actions, self.action_space.low, self.action_space.high)
-
-            new_obs, rewards, dones, infos = env.step(actions_list)
-
-            self._update_info_buffer(infos)
+            agent_new_obs, agent_rewards, dones, terminated_list = env.step(
+                agent_actions
+            )
 
             n_steps += 1
 
-            # if isinstance(self.action_space, gym.space.Discrete):
-            #     actions = actions.reshape(-1,1)
+            for i, terminated in enumerate(terminated_list):
+                if not terminated:
+                    continue
+                for j, (agent, agent_obs) in enumerate(
+                    zip(self._agents, agent_new_obs)
+                ):
+                    terminal_obs = agent.policy.obs_to_tensor(agent_obs[i])
+                    with th.no_grad():
+                        terminal_value = agent.policy.predict_values(terminal_obs)[0]  # type: ignore
+                    agent_rewards[j][i] += agent.gamma * terminal_value
 
-            #infos未定義?
-            for i in range(5):
-                for idx, done in enumerate(dones):
-                    if(
-                        done
-                        and infos[idx].get("terminal_observation") is not None
-                        and infos[idx].get("TimeLimit.truncated", False)
-                    ):
-                        terminal_obs = self.policy.obs_tensor(infos[idx]["terminal_observation"])[0]
-                        with th.no_grad():
-                            terminal_value = self.policy.predict_values(terminal_obs)[0]
-                        rewards[i][idx] += self.gamma * terminal_value
-            
-            #_last_episode_starts未実装
-            for i in range(5):
-                self._rollout_buffers[i].add(last_obs[i], actions_list[i], rewards[i], self._last_episode_starts, values[i], log_probs_list[i])
-                last_obs[i] = new_obs[i]
+            for agent, obs, actions, rewards, episode_starts, values, log_probs in zip(
+                self._agents,
+                self._last_obs,
+                agent_actions,
+                agent_rewards,
+                self._last_episode_starts,
+                agent_values,
+                agent_log_probs,
+            ):
+                agent.rollout_buffer.add(
+                    obs,
+                    actions,
+                    rewards,
+                    episode_starts,
+                    values,
+                    log_probs,
+                )
 
+            self._last_obs = agent_new_obs
+            self._last_episode_starts = dones
+
+        for agent, obs in zip(self._agents, self._last_obs):
             with th.no_grad():
-                for i in range(5):
-                    values[i] = self.policy.predict_values(obs_as_tensor(new_obs[i], self.device))
+                values = agent.policy.predict_values(
+                    obs_as_tensor(obs, self._device)
+                )  # type:ignore
 
-            for i in range(5):
-                self._rollout_buffers.compute_returns_and_advantage(last_values=values[i], dones=dones)
-
-        pass
+            agent.rollout_buffer.compute_returns_and_advantage(  # type:ignore
+                last_values=values, dones=self._last_episode_starts
+            )
 
     def _train(self):
-        pass
+        for agent in self._agents:
+            agent.train()
 
     def _register_log(self):
         pass
 
 
 def main():
-    pass
+    mal = MultiAgentLearner(total_timesteps=5000)
+    mal.learn()
+
+
+if __name__ == "__main__":
+    main()

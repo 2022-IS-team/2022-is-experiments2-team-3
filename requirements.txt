@@ -1,8 +1,8 @@
 numpy~=1.21.6
+stable-baselines3[extra]
 gym==0.26.2
 black
 pytest
 setuptools
 build
 tqdm
-stable-baselines3[extra]
