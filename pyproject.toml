@@ -3,7 +3,8 @@ name = "aurl"
 version = "0.1.2"
 dependencies = [
   "gym==0.26.2",
-  "numpy~=1.21.6"
+  "numpy~=1.21.6",
+  "tqdm"
 ]
 
 [tool.setuptools]

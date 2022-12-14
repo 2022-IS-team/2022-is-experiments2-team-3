@@ -24,7 +24,12 @@ def define_spaces():
         low=0.0,
         high=1.0,
         shape=(
-            (11 + config.num_tasks_per_player + (config.num_players - 1) * 3)
+            (
+                11
+                + config.num_tasks_per_player
+                + (config.num_players - 1) * 2
+                + (config.num_players - 1) * (config.num_players - 1)
+            )
             * config.num_players,
         ),
         dtype=np.float32,
