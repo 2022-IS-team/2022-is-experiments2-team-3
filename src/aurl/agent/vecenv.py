@@ -5,41 +5,59 @@ import aurl.environment
 
 
 class VecEnv:
-    _envs: List[gym.Env]
-    _dones: List[bool]
+    # _envs: List[gym.Env]
+    _env: gym.Env
+    # _dones: List[bool]
     _num_env: int
 
     def __init__(self, num_env: int):
         self._num_env = num_env
-        self._envs = [gym.make("isteam3/MockAmongUs-v0") for _ in range(num_env)]
+        # self._envs = [gym.make("isteam3/MockAmongUs-v0") for _ in range(num_env)]
+        self._env = gym.make("isteam3/MockAmongUs-v0")
         self._dones = [True for _ in range(num_env)]
 
     def reset(self) -> None:
-        for env in self._envs:
-            env.reset()
+        # for env in self._envs:
+        #     env.reset()
+        self._env.reset()
         self._dones = [False for _ in range(self._num_env)]
 
-    def step(self, action_list) -> List[List[Tuple[np.ndarray, float]]]:
-        results = []
-        assert len(action_list) == len(self._envs)
-        for env_idx, (env, agent_action_list, done) in enumerate(
-            zip(self._envs, action_list, self._dones)
-        ):
-            if done:
-                results.append(([], []))
-                continue
-            actions = np.concatenate(agent_action_list).tolist()
-            obs, reward, terminated, truncated, info = env.step(actions)
-            params_per_player = 39
-            agent_obs_list = [
-                np.array(obs[i * params_per_player : (i + 1)]) for i in range(5)
-            ]
-            agent_reward_list = [reward[str(i)] for i in range(5)]  # type:ignore
-            results.append((agent_obs_list, agent_reward_list))
+    # def step(self, action_list) -> List[List[Tuple[np.ndarray, float]]]:
+    #     results = []
+    #     assert len(action_list) == len(self._envs)
+    #     for env_idx, (env, agent_action_list, done) in enumerate(
+    #         zip(self._envs, action_list, self._dones)
+    #     ):
+    #         if done:
+    #             results.append(([], []))
+    #             continue
+    #         actions = np.concatenate(agent_action_list).tolist()
+    #         obs, reward, terminated, truncated, info = env.step(actions)
+    #         params_per_player = 39
+    #         agent_obs_list = [
+    #             np.array(obs[i * params_per_player : (i + 1)]) for i in range(5)
+    #         ]
+    #         agent_reward_list = [reward[str(i)] for i in range(5)]  # type:ignore
+    #         results.append((agent_obs_list, agent_reward_list))
 
-            if terminated or truncated:
-                self._dones[env_idx] = True
-        return results
+    #         if terminated or truncated:
+    #             self._dones[env_idx] = True
+    #     return results
+
+    def step(
+        self, agent_action_list: List[np.ndarray]
+    ) -> Tuple[List[np.ndarray], List[float], bool]:
+        actions = np.concatenate(agent_action_list).tolist()
+        obs, reward, terminated, truncated, info = self._env.step(  # type:ignore
+            actions
+        )
+        params_per_player = 39
+        agent_obs_list = [
+            np.array(obs[i * params_per_player : (i + 1)]) for i in range(5)
+        ]
+        agent_reward_list = [reward[str(i)] for i in range(5)]  # type:ignore
+        done = terminated or truncated
+        return agent_obs_list, agent_reward_list, done
 
 
 # for test
