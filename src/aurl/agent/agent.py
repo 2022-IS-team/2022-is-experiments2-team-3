@@ -14,6 +14,8 @@ from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback
 import gym
 from gym.spaces import Box
 
+observation_dims_per_agent = 40
+
 
 class MultiAgentLearner(PPO):
     _total_timesteps: int
@@ -32,13 +34,10 @@ class MultiAgentLearner(PPO):
             _init_setup_model=False,
         )
         self.action_space = Box(low=0.0, high=1.0, shape=(7,))
-        self.observation_space = Box(low=0.0, high=1.0, shape=(39,))
+        self.observation_space = Box(
+            low=0.0, high=1.0, shape=(observation_dims_per_agent,)
+        )
         self._setup_model()
-        # self._logger = logging.getLogger(__name__)
-        # handler = logging.StreamHandler()
-        # handler.setLevel(logging.DEBUG)
-        # self._logger.addHandler(handler)
-        # self._logger.setLevel(logging.DEBUG)
 
     def collect_rollouts(
         self,
@@ -89,7 +88,13 @@ class MultiAgentLearner(PPO):
                 with th.no_grad():
                     # Convert to pytorch tensor or to TensorDict
                     obs_tensor = obs_as_tensor(
-                        self._last_obs[:, i * 39 : (i + 1) * 39], self.device
+                        self._last_obs[
+                            :,
+                            i
+                            * observation_dims_per_agent : (i + 1)
+                            * observation_dims_per_agent,
+                        ],
+                        self.device,
                     )
                     actions, values, log_probs = self.policy(obs_tensor)
                 actions = actions.cpu().numpy()
@@ -124,10 +129,26 @@ class MultiAgentLearner(PPO):
             n_steps += 1
 
             last_obs_list = [
-                [obs[i * 39 : (i + 1) * 39] for obs in self._last_obs] for i in range(5)
+                [
+                    obs[
+                        i
+                        * observation_dims_per_agent : (i + 1)
+                        * observation_dims_per_agent
+                    ]
+                    for obs in self._last_obs
+                ]
+                for i in range(5)
             ]
             new_obs_list = [
-                [obs[i * 39 : (i + 1) * 39] for obs in new_obs] for i in range(5)
+                [
+                    obs[
+                        i
+                        * observation_dims_per_agent : (i + 1)
+                        * observation_dims_per_agent
+                    ]
+                    for obs in new_obs
+                ]
+                for i in range(5)
             ]
             rewards_list = [
                 [info["rewards"][str(i)] for info in infos] for i in range(5)
@@ -172,7 +193,15 @@ class MultiAgentLearner(PPO):
             self._last_episode_starts = dones
 
         last_obs_list = [
-            [obs[i * 39 : (i + 1) * 39] for obs in self._last_obs] for i in range(5)
+            [
+                obs[
+                    i
+                    * observation_dims_per_agent : (i + 1)
+                    * observation_dims_per_agent
+                ]
+                for obs in self._last_obs
+            ]
+            for i in range(5)
         ]
         last_values_and_dones = []
         for new_obs in last_obs_list:

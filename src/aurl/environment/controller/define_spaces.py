@@ -8,6 +8,7 @@ def define_spaces():
     observation_space, action_spaceを定義
     """
     # [
+    #   role, <- 0=crew or 1=imposter
     #   dead, <- 0 or 1
     #   position[2], <- (x,y)
     #   surroundings-here,surroundings-up,surroundings-right,surroundings-down,surroundings-left,
@@ -25,7 +26,7 @@ def define_spaces():
         high=1.0,
         shape=(
             (
-                11
+                12
                 + config.num_tasks_per_player
                 + (config.num_players - 1) * 2
                 + (config.num_players - 1) * (config.num_players - 1)

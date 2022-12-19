@@ -18,6 +18,7 @@ def state_to_observation(state: GameState) -> np.ndarray:
     observation = []
     for i, p in enumerate(state.players):
         player_obs = []
+        player_obs += [float(p.role)]
         player_obs += [1.0 if p.dead else 0.0]
         player_obs += [
             p.position[0] / config.map_height,
