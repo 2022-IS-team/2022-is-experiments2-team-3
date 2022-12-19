@@ -1,4 +1,5 @@
 from ..model import GameState
+from .. import config
 from typing import Dict
 
 
@@ -15,8 +16,15 @@ def calc_reward_on_working(state: GameState) -> Dict[str, float]:
     """
     rewards = {}
     for i, p in enumerate(state.players):
-        reward = 0
+        reward = -1
         if p.failed_to_move:
-            reward -= 1
+            reward -= 3
+        for task in state.tasks:
+            if task.assignee == i:
+                continue
+            if task.progress == 0 or task.progress == config.num_task_progress_step:
+                continue
+            reward += 1
+            break
         rewards[str(i)] = reward
     return rewards
