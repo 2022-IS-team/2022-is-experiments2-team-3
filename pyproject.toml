@@ -5,7 +5,8 @@ dependencies = [
   "gym==0.21.0",
   "numpy~=1.21.6",
   "stable_baselines3==1.6.2",
-  "tqdm"
+  "tqdm",
+  "pandas"
 ]
 
 [tool.setuptools]

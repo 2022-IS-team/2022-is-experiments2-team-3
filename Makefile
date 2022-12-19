@@ -49,4 +49,6 @@ test:
 .PHONY: run
 run:
 	# @pip install -e .
-	@python -m aurl
+	@python -m aurl \
+		--total_timesteps 10240 \
+		--exp_path ./exp

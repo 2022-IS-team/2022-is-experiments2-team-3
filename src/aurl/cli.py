@@ -3,35 +3,110 @@ import gym
 import time
 import shutil
 import numpy as np
+from .multi_agent_ppo import MultiAgentPPO
+import torch as th
+import argparse
+import os
+from datetime import datetime
+import pickle
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--total_timesteps", default=2048 * 100)
+parser.add_argument("--save_interval", default=10)
+parser.add_argument("--exp_path", default=".")
+parser.add_argument("--pretrained_path", default=None)
+parser.add_argument("--skip_learning", default=False)
+parser.add_argument("--game_max_steps", default=100000)
 
 
 def main():
-    env = gym.make("isteam3/MockAmongUs-v0", render_mode="ansi")
+    args = parser.parse_args()
 
-    max_episodes = 100
-    max_steps = 500
-    # print(type(env.action_space.sample()))
-    for episode in range(max_episodes):
-        env.reset()
-        render(action=None, env=env, episode=episode, step=-1)
-        for step in range(max_steps):
-            action = env.action_space.sample()
-            observation, reward, terminated, truncated, info = env.step(action=action)
-            # print(observation, reward, terminated, truncated, info)
-            render(action=action, env=env, episode=episode, step=step)
+    exp_name = datetime.now().strftime("exp_%Y-%m-%d_%H:%M:%S")
+    exp_path = os.path.join(args.exp_path, exp_name)
+    save_path = exp_path
+    log_path = os.path.join(exp_path, "logs")
+    game_record_path = os.path.join(exp_path, "game_records")
+    os.makedirs(log_path)
+    os.makedirs(game_record_path)
 
-            time.sleep(0.01)
+    device = th.device("cuda:0") if th.cuda.is_available() else th.device("cpu")
+    mappo = MultiAgentPPO(device=device, tensorboard_log=log_path)
+    if not args.pretrained_path is None:
+        mappo.load(args.pretrained_path)
+    if not args.skip_learning:
+        mappo.learn(
+            total_timesteps=int(args.total_timesteps),
+            save_interval=int(args.save_interval),
+            save_path=save_path,
+        )
+        mappo.save(os.path.join(save_path, "final.pth"))
 
-            if terminated or truncated:
-                break
+    record_name = f"{'pretrained' if not args.pretrained_path is None else ''}_{args.total_timesteps}steps"
+    record_metadata_path = os.path.join(game_record_path, record_name + "_metadata.txt")
+    metadata_txt = [
+        f"total_timesteps: {args.total_timesteps}",
+        f"save_interval: {args.save_interval}",
+        f"exp_path: {args.exp_path}",
+        f"pretrained_path: {args.pretrained_path}",
+        f"skip_learning: {args.skip_learning}",
+        f"game_max_steps: {args.game_max_steps}",
+        f"trained_file: {os.path.join(save_path,'final.pth') if not args.skip_learning else args.pretrained_path}",
+    ]
+    with open(record_metadata_path, "w") as f:
+        f.writelines(metadata_txt)
+
+    records = rollout(
+        mappo,
+        max_steps=int(args.game_max_steps),
+    )
+    pickle_path = os.path.join(game_record_path, record_name + ".pickle")
+    with open(pickle_path, "wb") as f:
+        pickle.dump(records, f)
 
 
-def render(action, env, episode, step):
+def rollout(model: MultiAgentPPO, max_steps):
+    env = gym.make("isteam3/MockAmongUs-v0")
+    records = []
+
+    last_obs = env.reset()
+    render(action=None, env=env, step=-1)
+    records.append({"step": -1, "observation": last_obs})
+
+    step = 0
+    while True:
+        actions = model(last_obs)
+        observations, rewards, done, info = env.step(action=actions)
+        last_obs = observations
+
+        render(action=actions, env=env, step=step)
+        records.append(
+            {
+                "step": step,
+                "actions": actions,
+                "observations": observations,
+                "rewards": rewards,
+                "done": done,
+                "info": info,
+            }
+        )
+        time.sleep(0.01)
+
+        if done:
+            break
+        if step == max_steps:
+            break
+
+        step += 1
+    return records
+
+
+def render(action, env, step):
     output_line_height = shutil.get_terminal_size().lines - 1
 
-    env_str = env.render()
+    env_str = env.render(mode="ansi")
     lines = [""]
-    lines.append("Episode:%3d -- Step:%3d" % (episode, step))
+    lines.append("Step:%3d" % (step,))
 
     lines.append("<Action>")
     action_line = ""

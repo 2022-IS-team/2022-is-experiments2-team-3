@@ -5,6 +5,7 @@ import torch as th
 import logging
 import time
 import sys
+import os
 from stable_baselines3.ppo.ppo import PPO
 from stable_baselines3.common.utils import obs_as_tensor, safe_mean
 from stable_baselines3.common.buffers import RolloutBuffer
@@ -23,11 +24,12 @@ class MultiAgentPPO(PPO):
     _last_obs: List[np.ndarray]
     _last_episode_starts: np.ndarray
 
-    def __init__(self, device: th.device):
+    def __init__(self, device: th.device, tensorboard_log: Optional[str]):
         super().__init__(
             "MlpPolicy",
             "isteam3/MockAmongUs-v0",
             device=device,
+            tensorboard_log=tensorboard_log,
             n_steps=2048,
             verbose=1,
             _init_setup_model=False,
@@ -251,6 +253,8 @@ class MultiAgentPPO(PPO):
         eval_log_path: Optional[str] = None,
         reset_num_timesteps: bool = True,
         progress_bar: bool = False,
+        save_interval: int = 1,
+        save_path: str = ".",
     ):
         iteration = 0
 
@@ -333,6 +337,10 @@ class MultiAgentPPO(PPO):
                 self.logger.dump(step=self.num_timesteps)
 
             self.train()
+
+            if iteration % save_interval == 0:
+                filename = os.path.join(save_path, f"{self.num_timesteps}steps.pth")
+                self.save(filename)
 
         callback.on_training_end()
 
