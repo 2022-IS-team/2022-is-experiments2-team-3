@@ -84,11 +84,11 @@ class AUEnv(gym.Env):
         # }
         return observation.tolist()
 
-    def render(self):
-        if self.render_mode == "rgb_array":
+    def render(self, mode="ansi"):
+        if mode == "rgb_array":
             # return controller.render_state_with_rgb_array(self.state)
             return None
-        elif self.render_mode == "ansi":
+        elif mode == "ansi":
             return controller.render_state_with_text(self.state)
         else:
             return None
