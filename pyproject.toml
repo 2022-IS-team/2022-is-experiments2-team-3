@@ -2,8 +2,9 @@
 name = "aurl"
 version = "0.1.2"
 dependencies = [
-  "gym==0.26.2",
+  "gym==0.21.0",
   "numpy~=1.21.6",
+  "stable_baselines3==1.6.2",
   "tqdm"
 ]
 

@@ -32,13 +32,13 @@ class AUEnv(gym.Env):
             observation = controller.state_to_observation(self.state)
             if judge != "continue":
                 rewards = controller.calc_reward_on_terminated(self.state, judge)
-                info = {"state": self.state, "rewards": rewards}
-                return observation, rewards, True, False, info
+                info = {"state": self.state, "rewards": rewards, "terminated": False}
+                return observation, 0.0, True, info
             else:
                 self.state.meeting = False
                 rewards = controller.calc_reward_on_meeting(self.state)
-                info = {"state": self.state, "rewards": rewards}
-                return observation, rewards, False, False, info
+                info = {"state": self.state, "rewards": rewards, "terminated": False}
+                return observation, 0.0, False, info
 
         if controller.someone_reported(cur_action, self.state):
             controller.share_dead(self.state)
@@ -46,8 +46,8 @@ class AUEnv(gym.Env):
             self.state.meeting = True
             observation = controller.state_to_observation(self.state)
             rewards = controller.calc_reward_on_reported(state=self.state)
-            info = {"state": self.state, "rewards": rewards}
-            return observation, rewards, False, False, info
+            info = {"state": self.state, "rewards": rewards, "terminated": False}
+            return observation, 0.0, False, info
 
         controller.apply_kill(cur_action, self.state)
         judge = controller.judge(self.state)
@@ -56,8 +56,8 @@ class AUEnv(gym.Env):
             rewards = controller.calc_reward_on_terminated(
                 state=self.state, judge=judge
             )
-            info = {"state": self.state, "rewards": rewards}
-            return observation, rewards, True, False, info
+            info = {"state": self.state, "rewards": rewards, "terminated": True}
+            return observation, 0.0, True, info
 
         controller.apply_move(cur_action, self.state)
         controller.update_report_availability(self.state)
@@ -66,16 +66,11 @@ class AUEnv(gym.Env):
 
         observation = controller.state_to_observation(self.state)
         rewards = controller.calc_reward_on_working(self.state)
-        info = {"state": self.state, "rewards": rewards}
-        return observation, rewards, False, False, info
+        info = {"state": self.state, "rewards": rewards, "terminated": False}
+        return observation, 0.0, False, info
 
-    def reset(self, seed=None, options: Union[Dict[str, Any], None] = None):
-        super().reset(seed=seed)
-        game_map = (
-            options["game_map"]
-            if options != None and "game_map" in options
-            else config.default_game_map
-        )
+    def reset(self):
+        game_map = config.default_game_map
         game_map = np.array(game_map)
         players = controller.initialize_players(game_map=game_map)
         roles = [p.role for p in players]
@@ -83,11 +78,11 @@ class AUEnv(gym.Env):
         self.state = model.GameState(players=players, tasks=tasks, game_map=game_map)
 
         observation = controller.state_to_observation(self.state)
-        info = {
-            "state": self.state,
-            "rewards": [0.0 for _ in range(config.num_players)],
-        }
-        return observation, info
+        # info = {
+        #     "state": self.state,
+        #     "rewards": [0.0 for _ in range(config.num_players)],
+        # }
+        return observation.tolist()
 
     def render(self):
         if self.render_mode == "rgb_array":

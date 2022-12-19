@@ -6,7 +6,7 @@ import aurl.environment
 params_per_player = 39
 
 
-class VecEnv:
+class VecAUEnv:
     _envs: List[gym.Env]
     num_env: int
 
@@ -58,7 +58,7 @@ class VecEnv:
 
 # for test
 if __name__ == "__main__":
-    ve = VecEnv(3)
+    ve = VecAUEnv(3)
     obs_list = ve.reset()
     print(len(obs_list), obs_list[0].shape)
     obs_list, rewards_list, dones_list, terminated_list = ve.step(
