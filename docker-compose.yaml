@@ -9,9 +9,13 @@ services:
   #     - ~/.gitconfig:/root/.gitconfig
   #   ports:
   #     - "10027:22"
+  # test:
+  #   container_name: aurl-test
+  #   build: docker/test
+  #   volumes:
+  #     - .:/workspace/2022-is-experiments2-team-3
   test:
-    container_name: aurl-test
-    build: docker/test
+    container_name: aurl-exp
+    build: docker/exp
     volumes:
       - .:/workspace/2022-is-experiments2-team-3
-    
