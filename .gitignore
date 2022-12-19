@@ -3,4 +3,4 @@ __pycache__
 .log
 *.egg-info
 venv
-exp
+./exp
