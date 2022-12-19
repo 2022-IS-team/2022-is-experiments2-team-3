@@ -17,19 +17,18 @@ from gym.spaces import Box
 observation_dims_per_agent = 40
 
 
-class MultiAgentLearner(PPO):
+class MultiAgentPPO(PPO):
     _total_timesteps: int
     _device: th.device
     _last_obs: List[np.ndarray]
     _last_episode_starts: np.ndarray
-    _logger: logging.Logger
 
     def __init__(self, device: th.device):
         super().__init__(
             "MlpPolicy",
             "isteam3/MockAmongUs-v0",
             device=device,
-            n_steps=1024,
+            n_steps=2048,
             verbose=1,
             _init_setup_model=False,
         )
@@ -39,6 +38,43 @@ class MultiAgentLearner(PPO):
         )
         self._setup_model()
 
+    def __call__(self, observation: np.ndarray):
+        actions_list = []
+        for i in range(5):
+            with th.no_grad():
+
+                # Convert to pytorch tensor or to TensorDict
+                obs_tensor = obs_as_tensor(
+                    np.array(
+                        [
+                            (
+                                observation[
+                                    i
+                                    * observation_dims_per_agent : (i + 1)
+                                    * observation_dims_per_agent
+                                ]
+                            )
+                        ]
+                    ),
+                    self.device,
+                )
+                actions, _, _ = self.policy(obs_tensor)
+            actions = actions.cpu().numpy()
+
+            # Rescale and perform action
+            clipped_actions = actions
+            # Clip the actions to avoid out of bound error
+            if isinstance(self.action_space, gym.spaces.Box):
+                clipped_actions = np.clip(
+                    actions, self.action_space.low, self.action_space.high
+                )
+            actions_list.append(clipped_actions)
+        actions = [
+            np.concatenate([actions_of_agent[i] for actions_of_agent in actions_list])
+            for i in range(self.n_envs)
+        ]
+        return actions[0]
+
     def collect_rollouts(
         self,
         env: VecEnv,
@@ -46,18 +82,6 @@ class MultiAgentLearner(PPO):
         rollout_buffer: RolloutBuffer,
         n_rollout_steps: int,
     ) -> bool:
-        """
-        Collect experiences using the current policy and fill a ``RolloutBuffer``.
-        The term rollout here refers to the model-free notion and should not
-        be used with the concept of rollout used in model-based RL or planning.
-        :param env: The training environment
-        :param callback: Callback that will be called at each step
-            (and at the beginning and end of the rollout)
-        :param rollout_buffer: Buffer to fill with rollouts
-        :param n_rollout_steps: Number of experiences to collect per environment
-        :return: True if function returned with at least `n_rollout_steps`
-            collected, False if callback terminated rollout prematurely.
-        """
         assert self._last_obs is not None, "No previous observation was provided"
         # Switch to eval mode (this affects batch norm / dropout)
         self.policy.set_training_mode(False)
@@ -316,7 +340,7 @@ class MultiAgentLearner(PPO):
 
 
 def main():
-    mal = MultiAgentLearner(device=th.device("cpu"))
+    mal = MultiAgentPPO(device=th.device("cpu"))
     mal.learn(total_timesteps=50000)
 
 

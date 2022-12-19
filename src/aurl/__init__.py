@@ -1,2 +1,2 @@
 from .environment import *
-from .agent import *
+from .multi_agent_ppo.mult_agent_ppo import *
