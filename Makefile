@@ -25,6 +25,10 @@ exec-dev:
 exec-test:
 	docker-compose exec test bash
 
+.PHONY: exec-exp
+exec-exp:
+	docker-compose exec exp bash
+
 .PHONY: start-package-build
 start-package-build:
 	docker-compose exec dev bash -c "cd 2022-is-experiments2-team-3 && python -m build"
@@ -50,5 +54,9 @@ test:
 run:
 	# @pip install -e .
 	@python -m aurl \
-		--total_timesteps 10240 \
-		--exp_path ./exp
+		--total_timesteps 10000000 \
+		--exp_path ./experiments
+
+.PHONY: run-exp
+run-exp:
+	@docker-compose up -d

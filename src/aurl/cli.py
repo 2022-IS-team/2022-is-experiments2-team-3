@@ -12,11 +12,12 @@ import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--total_timesteps", default=2048 * 100)
-parser.add_argument("--save_interval", default=10)
+parser.add_argument("--save_interval", default=100)
 parser.add_argument("--exp_path", default=".")
 parser.add_argument("--pretrained_path", default=None)
 parser.add_argument("--skip_learning", default=False)
-parser.add_argument("--game_max_steps", default=100000)
+parser.add_argument("--game_max_steps", default=20000)
+parser.add_argument("--continue_learning", default=False)
 
 
 def main():
@@ -33,25 +34,25 @@ def main():
     device = th.device("cuda:0") if th.cuda.is_available() else th.device("cpu")
     mappo = MultiAgentPPO(device=device, tensorboard_log=log_path)
     if not args.pretrained_path is None:
-        mappo.load(args.pretrained_path)
+        mappo.set_parameters(args.pretrained_path)
     if not args.skip_learning:
         mappo.learn(
             total_timesteps=int(args.total_timesteps),
             save_interval=int(args.save_interval),
             save_path=save_path,
         )
-        mappo.save(os.path.join(save_path, "final.pth"))
+        mappo.save(os.path.join(save_path, "final.zip"))
 
     record_name = f"{'pretrained' if not args.pretrained_path is None else ''}_{args.total_timesteps}steps"
     record_metadata_path = os.path.join(game_record_path, record_name + "_metadata.txt")
     metadata_txt = [
-        f"total_timesteps: {args.total_timesteps}",
-        f"save_interval: {args.save_interval}",
-        f"exp_path: {args.exp_path}",
-        f"pretrained_path: {args.pretrained_path}",
-        f"skip_learning: {args.skip_learning}",
-        f"game_max_steps: {args.game_max_steps}",
-        f"trained_file: {os.path.join(save_path,'final.pth') if not args.skip_learning else args.pretrained_path}",
+        f"total_timesteps: {args.total_timesteps}\n",
+        f"save_interval: {args.save_interval}\n",
+        f"exp_path: {args.exp_path}\n",
+        f"pretrained_path: {args.pretrained_path}\n",
+        f"skip_learning: {args.skip_learning}\n",
+        f"game_max_steps: {args.game_max_steps}\n",
+        f"trained_file: {os.path.join(save_path,'final.pth') if not args.skip_learning else args.pretrained_path}\n",
     ]
     with open(record_metadata_path, "w") as f:
         f.writelines(metadata_txt)

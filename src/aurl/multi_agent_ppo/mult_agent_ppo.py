@@ -133,8 +133,8 @@ class MultiAgentPPO(PPO):
                         actions, self.action_space.low, self.action_space.high
                     )
                 actions_list.append(clipped_actions)
-                values_list.append(values)
-                log_probs_list.append(log_probs)
+                values_list.append(values.cpu())
+                log_probs_list.append(log_probs.cpu())
             actions = [
                 np.concatenate(
                     [actions_of_agent[i] for actions_of_agent in actions_list]
@@ -193,7 +193,7 @@ class MultiAgentPPO(PPO):
                             0
                         ]
                         with th.no_grad():
-                            terminal_value = self.policy.predict_values(terminal_obs)[0]
+                            terminal_value = self.policy.predict_values(terminal_obs)[0].cpu()
                         rewards_list[i][idx] += self.gamma * terminal_value
 
             for i, (last_obs, actions, rewards, values, log_probs) in enumerate(
@@ -339,7 +339,7 @@ class MultiAgentPPO(PPO):
             self.train()
 
             if iteration % save_interval == 0:
-                filename = os.path.join(save_path, f"{self.num_timesteps}steps.pth")
+                filename = os.path.join(save_path, f"{self.num_timesteps}steps.zip")
                 self.save(filename)
 
         callback.on_training_end()

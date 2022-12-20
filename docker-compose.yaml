@@ -14,8 +14,13 @@ services:
   #   build: docker/test
   #   volumes:
   #     - .:/workspace/2022-is-experiments2-team-3
-  test:
+  exp:
     container_name: aurl-exp
     build: docker/exp
     volumes:
       - .:/workspace/2022-is-experiments2-team-3
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ gpu ]
