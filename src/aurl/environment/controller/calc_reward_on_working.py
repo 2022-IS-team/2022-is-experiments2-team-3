@@ -17,8 +17,6 @@ def calc_reward_on_working(state: GameState) -> Dict[str, float]:
     rewards = {}
     for i, p in enumerate(state.players):
         reward = -1
-        if p.failed_to_move:
-            reward -= 3
         for task in state.tasks:
             if task.assignee == i:
                 continue
