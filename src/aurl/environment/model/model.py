@@ -91,6 +91,7 @@ class GameState:
     game_map: np.ndarray
     meeting: bool
     # sabotages: List[bool]
+    meeting_count: int
 
     def __init__(
         self, players: List[PlayerState], tasks: List[TaskState], game_map: np.ndarray
@@ -108,6 +109,7 @@ class GameState:
         self.game_map = game_map
         self.meeting = False
         # self.sabotages = [False, False, False]
+        self.meeting_count = 0
 
 
 class PlayerAction:

@@ -44,6 +44,7 @@ class AUEnv(gym.Env):
             controller.share_dead(self.state)
             controller.share_sus(self.state)
             self.state.meeting = True
+            self.state.meeting_count += 1
             observation = controller.state_to_observation(self.state)
             rewards = controller.calc_reward_on_reported(state=self.state)
             info = {"state": self.state, "rewards": rewards, "terminated": False}

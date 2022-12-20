@@ -77,6 +77,7 @@ def rollout(model: MultiAgentPPO, max_steps):
     step = 0
     while True:
         actions = model(last_obs)
+        
         observations, rewards, done, info = env.step(action=actions)
         last_obs = observations
 

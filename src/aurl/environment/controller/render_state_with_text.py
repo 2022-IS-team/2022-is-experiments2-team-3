@@ -60,7 +60,7 @@ def render_state_with_text(state: GameState) -> str:
                 sus_str,
             )
         )
-    info_lines.append("")
+    info_lines.append(f"MTG:{state.meeting_count}")
     info_lines.append("<Tasks>")
     tasks_head = ""
     tasks_progresses = ""
