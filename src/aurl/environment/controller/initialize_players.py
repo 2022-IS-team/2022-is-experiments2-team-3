@@ -6,7 +6,9 @@ import numpy as np
 
 def initialize_players(game_map: np.ndarray) -> List[PlayerState]:
     players = {}
-    roles = [1 if i < config.num_imposter else 0 for i in range(config.num_players)]
+    roles = [0 for _ in range(config.num_players)]
+    for imp_idx in np.argsort(np.random.rand(5))[:config.num_imposter]:
+        roles[imp_idx] = 1
     mask = game_map == 3
     assert np.count_nonzero(mask) == config.num_players
     spawn_positions = np.where(mask)
