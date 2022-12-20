@@ -29,9 +29,10 @@ exec-test:
 exec-exp:
 	docker-compose exec exp bash
 
-.PHONY: start-package-build
-start-package-build:
-	docker-compose exec dev bash -c "cd 2022-is-experiments2-team-3 && python -m build"
+# 動かない 代わりにexec-devでコンテナの中入りビルド実行する
+# .PHONY: start-package-build
+# start-package-build:
+# 	docker-compose exec dev bash -c "cd 2022-is-experiments2-team-3 && python -m build"
 
 .PHONY: start-test
 start-test:

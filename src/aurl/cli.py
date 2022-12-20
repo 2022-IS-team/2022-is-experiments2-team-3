@@ -12,7 +12,7 @@ import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--total_timesteps", default=2048 * 100)
-parser.add_argument("--save_interval", default=100)
+parser.add_argument("--save_interval", default=10)
 parser.add_argument("--exp_path", default=".")
 parser.add_argument("--pretrained_path", default=None)
 parser.add_argument("--skip_learning", default=False)
@@ -92,7 +92,7 @@ def rollout(model: MultiAgentPPO, max_steps):
                 "info": info,
             }
         )
-        time.sleep(0.01)
+        time.sleep(0.001)
 
         if done:
             break
