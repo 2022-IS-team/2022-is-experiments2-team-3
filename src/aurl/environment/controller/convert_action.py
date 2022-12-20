@@ -1,5 +1,7 @@
 from ..model import PlayerAction
 from typing import Dict
+from .. import config
+import math
 
 
 def convert_action(action) -> Dict[str, PlayerAction]:
@@ -14,12 +16,24 @@ def convert_action(action) -> Dict[str, PlayerAction]:
         Dict[str,PlayerAction]: 変換後のアクション情報、キーはプレイヤー番号
     """
     out = {}
-    for i, a in action.items():
+    params_per_player = 3 + config.num_players - 1
+    for i in range(config.num_players):
+        move_raw = action[i * params_per_player + 0]
+        move = math.floor(move_raw * 5) if move_raw != 1.0 else 4
+        report_raw = action[i * params_per_player + 1]
+        report = report_raw > config.act_threshould
+        kill_raw = action[i * params_per_player + 2]
+        kill = kill_raw > config.act_threshould
+        sus_raw = action[
+            i * params_per_player
+            + 3 : i * params_per_player
+            + 3
+            + config.num_players
+            - 1
+        ]
         sus = {}
-        for j, sus_value in enumerate(a[3]):
-            sus[str(j if j < int(i) else j + 1)] = sus_value
-        player_action = PlayerAction(
-            a[0], a[1] == 1, a[2] == 1, [v for v in sus.values()]
-        )
-        out[i] = player_action
+        for j, s in enumerate(sus_raw):
+            sus[str(j)] = s
+        player_action = PlayerAction(move=move, report=report, kill=kill, sus=sus)
+        out[str(i)] = player_action
     return out

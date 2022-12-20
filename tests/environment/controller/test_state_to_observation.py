@@ -3,6 +3,13 @@ from aurl.environment.model import GameState, PlayerAction, PlayerState, TaskSta
 from aurl.environment import config
 import numpy as np
 
+params_per_player = (
+    11
+    + config.num_tasks_per_player
+    + (config.num_players - 1) * 2
+    + (config.num_players - 1) * (config.num_players - 1)
+)
+
 
 def test_plain_state():
     """
@@ -37,20 +44,68 @@ def test_plain_state():
         game_map=game_map,
     )
     observation = state_to_observation(state=state)
-    assert len(observation) == 5
-    assert observation["0"]["dead"] == 0
-    assert np.allclose(observation["1"]["position"], np.array([0, 4]))
-    assert observation["2"]["surroundings"]["up"] == 1
-    assert observation["3"]["surroundings"]["left"] == 1
-    assert observation["4"]["surroundings"]["down"] == 0
-    assert observation["0"]["failed_to_move"] == 0
-    assert np.allclose(observation["1"]["tasks"], np.array([0, 0, 0, 0]))
-    assert observation["2"]["others_pos"][0] == 5
-    assert observation["3"]["others_pos"][0] == 1
-    assert observation["4"]["others_dead"][0] == 0
-    assert np.allclose(observation["0"]["others_sus"], np.zeros((4, 4)))
-    assert np.allclose(observation["1"]["cooltime"], np.array([0]))
-    assert observation["2"]["report_available"] == 0
+    print(observation[params_per_player * 0 : params_per_player * 1])
+    print(
+        np.array(
+            [
+                0,
+                0,
+                3 / config.map_width,  # dead,position
+                0,
+                0.2,
+                0,
+                0,
+                0,  # surroundings
+                0,  # failed_to_skip
+                0,
+                0,
+                0,
+                0,  # tasks
+                2 / 6,
+                5 / 6,
+                3 / 6,
+                5 / 6,  # others_pos
+                0,
+                0,
+                0,
+                0,  # others_dead
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,  # others_sus
+                0,
+                0,  # cooltime,report_available
+            ],
+            dtype=np.float32,
+        )
+    )
+    assert np.allclose(
+        observation[params_per_player*0:params_per_player*1],
+        np.array([
+            0,0,3/config.map_width, #dead,position
+            0,1/3,0,0,0, #surroundings
+            0, #failed_to_skip
+            0,0,0,0, #tasks
+            2/6,5/6,3/6,5/6, #others_pos
+            0,0,0,0, #others_dead
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0, #others_sus
+            0,0 #cooltime,report_available
+        ],dtype=np.float32))  # fmt:skip
 
 
 def test_surroundings():
@@ -86,35 +141,23 @@ def test_surroundings():
         game_map=game_map,
     )
     observation = state_to_observation(state=state)
-    assert observation["0"]["surroundings"]["here"] == 0
-    assert observation["0"]["surroundings"]["up"] == 0
-    assert observation["0"]["surroundings"]["right"] == 1
-    assert observation["0"]["surroundings"]["down"] == 0
-    assert observation["0"]["surroundings"]["left"] == 2
-
-    assert observation["1"]["surroundings"]["here"] == 2
-    assert observation["1"]["surroundings"]["up"] == 1
-    assert observation["1"]["surroundings"]["right"] == 0
-    assert observation["1"]["surroundings"]["down"] == 0
-    assert observation["1"]["surroundings"]["left"] == 1
-
-    assert observation["2"]["surroundings"]["here"] == 0
-    assert observation["2"]["surroundings"]["up"] == 0
-    assert observation["2"]["surroundings"]["right"] == 0
-    assert observation["2"]["surroundings"]["down"] == 0
-    assert observation["2"]["surroundings"]["left"] == 0
-
-    assert observation["3"]["surroundings"]["here"] == 0
-    assert observation["3"]["surroundings"]["up"] == 0
-    assert observation["3"]["surroundings"]["right"] == 0
-    assert observation["3"]["surroundings"]["down"] == 1
-    assert observation["3"]["surroundings"]["left"] == 2
-
-    assert observation["4"]["surroundings"]["here"] == 0
-    assert observation["4"]["surroundings"]["up"] == 0
-    assert observation["4"]["surroundings"]["right"] == 1
-    assert observation["4"]["surroundings"]["down"] == 1
-    assert observation["4"]["surroundings"]["left"] == 0
+    assert np.allclose(observation[3:8], np.array([0, 0, 1 / 3, 0, 2 / 3]))
+    assert np.allclose(
+        observation[params_per_player + 3 : params_per_player + 8],
+        np.array([2 / 3, 1 / 3, 0 / 3, 0 / 3, 1 / 3]),
+    )
+    assert np.allclose(
+        observation[params_per_player * 2 + 3 : params_per_player * 2 + 8],
+        np.array([0 / 3, 0 / 3, 0 / 3, 0 / 3, 0 / 3]),
+    )
+    assert np.allclose(
+        observation[params_per_player * 3 + 3 : params_per_player * 3 + 8],
+        np.array([0 / 3, 0 / 3, 0 / 3, 1 / 3, 2 / 3]),
+    )
+    assert np.allclose(
+        observation[params_per_player * 4 + 3 : params_per_player * 4 + 8],
+        np.array([0 / 3, 0 / 3, 1 / 3, 1 / 3, 0 / 3]),
+    )
 
 
 def test_others_pos_1():
@@ -150,31 +193,30 @@ def test_others_pos_1():
         game_map=game_map,
     )
     observation = state_to_observation(state=state)
-    print(observation)
-    assert observation["0"]["others_pos"][0] == 2
-    assert observation["0"]["others_pos"][1] == 2
-    assert observation["0"]["others_pos"][2] == 5
-    assert observation["0"]["others_pos"][3] == 5
-
-    assert observation["1"]["others_pos"][0] == 4
-    assert observation["1"]["others_pos"][1] == 0
-    assert observation["1"]["others_pos"][2] == 3
-    assert observation["1"]["others_pos"][3] == 5
-
-    assert observation["2"]["others_pos"][0] == 4
-    assert observation["2"]["others_pos"][1] == 0
-    assert observation["2"]["others_pos"][2] == 3
-    assert observation["2"]["others_pos"][3] == 5
-
-    assert observation["3"]["others_pos"][0] == 5
-    assert observation["3"]["others_pos"][1] == 1
-    assert observation["3"]["others_pos"][2] == 1
-    assert observation["3"]["others_pos"][3] == 5
-
-    assert observation["4"]["others_pos"][0] == 5
-    assert observation["4"]["others_pos"][1] == 5
-    assert observation["4"]["others_pos"][2] == 5
-    assert observation["4"]["others_pos"][3] == 5
+    print(
+        observation[params_per_player * 0 + 13 : params_per_player * 0 + 17],
+        np.array([2 / 6, 2 / 6, 5 / 6, 5 / 6]),
+    )
+    assert np.allclose(
+        observation[params_per_player * 0 + 13 : params_per_player * 0 + 17],
+        np.array([2 / 6, 2 / 6, 5 / 6, 5 / 6]),
+    )
+    assert np.allclose(
+        observation[params_per_player * 1 + 13 : params_per_player * 1 + 17],
+        np.array([4 / 6, 0 / 6, 3 / 6, 5 / 6]),
+    )
+    assert np.allclose(
+        observation[params_per_player * 2 + 13 : params_per_player * 2 + 17],
+        np.array([4 / 6, 0 / 6, 3 / 6, 5 / 6]),
+    )
+    assert np.allclose(
+        observation[params_per_player * 3 + 13 : params_per_player * 3 + 17],
+        np.array([5 / 6, 1 / 6, 1 / 6, 5 / 6]),
+    )
+    assert np.allclose(
+        observation[params_per_player * 4 + 13 : params_per_player * 4 + 17],
+        np.array([5 / 6, 5 / 6, 5 / 6, 5 / 6]),
+    )
 
 
 def test_others_pos_2():
@@ -218,32 +260,27 @@ def test_others_pos_2():
         game_map=game_map,
     )
     observation = state_to_observation(state=state)
-    print(observation)
-    assert observation["0"]["others_pos"][0] == 5
-    assert observation["0"]["others_pos"][1] == 2
-    assert observation["0"]["others_pos"][2] == 2
-    assert observation["0"]["others_pos"][3] == 5
-
-    assert observation["1"]["others_pos"][0] == 5
-    assert observation["1"]["others_pos"][1] == 0
-    assert observation["1"]["others_pos"][2] == 3
-    assert observation["1"]["others_pos"][3] == 5
-    assert observation["1"]["report_available"] == 1
-
-    assert observation["2"]["others_pos"][0] == 4
-    assert observation["2"]["others_pos"][1] == 1
-    assert observation["2"]["others_pos"][2] == 0
-    assert observation["2"]["others_pos"][3] == 5
-
-    assert observation["3"]["others_pos"][0] == 5
-    assert observation["3"]["others_pos"][1] == 1
-    assert observation["3"]["others_pos"][2] == 1
-    assert observation["3"]["others_pos"][3] == 5
-
-    assert observation["4"]["others_pos"][0] == 5
-    assert observation["4"]["others_pos"][1] == 5
-    assert observation["4"]["others_pos"][2] == 5
-    assert observation["4"]["others_pos"][3] == 5
+    assert np.allclose(
+        observation[params_per_player * 0 + 13 : params_per_player * 0 + 17],
+        np.array([5 / 6, 2 / 6, 2 / 6, 5 / 6]),
+    )
+    assert np.allclose(
+        observation[params_per_player * 1 + 13 : params_per_player * 1 + 17],
+        np.array([5 / 6, 0 / 6, 3 / 6, 5 / 6]),
+    )
+    assert observation[params_per_player * 1 + 38] == 1.0
+    assert np.allclose(
+        observation[params_per_player * 2 + 13 : params_per_player * 2 + 17],
+        np.array([4 / 6, 1 / 6, 0 / 6, 5 / 6]),
+    )
+    assert np.allclose(
+        observation[params_per_player * 3 + 13 : params_per_player * 3 + 17],
+        np.array([5 / 6, 1 / 6, 1 / 6, 5 / 6]),
+    )
+    assert np.allclose(
+        observation[params_per_player * 4 + 13 : params_per_player * 4 + 17],
+        np.array([5 / 6, 5 / 6, 5 / 6, 5 / 6]),
+    )
 
 
 def test_others_dead():
@@ -281,10 +318,7 @@ def test_others_dead():
     )
     observation = state_to_observation(state=state)
     print(observation)
-    assert observation["0"]["others_dead"][0] == 0
-    assert observation["0"]["others_dead"][1] == 1
-    assert observation["0"]["others_dead"][2] == 1
-    assert observation["0"]["others_dead"][3] == 0
+    assert np.allclose(observation[17:21], np.array([0, 1, 1, 0]))
 
 
 def test_others_sus():
@@ -323,14 +357,20 @@ def test_others_sus():
     )
     observation = state_to_observation(state=state)
     print(observation)
-    assert np.allclose(
-        observation["0"]["others_sus"],
-        np.array([[1.0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]),
-    )
-    assert np.allclose(
-        observation["3"]["others_sus"],
-        np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0.5], [0, 0, 0, 0]]),
-    )
+    assert np.allclose(observation[21:37],
+                       np.array([
+                           1,0,0,0,
+                           0,0,0,0,
+                           0,0,0,0,
+                           0,0,0,0
+                        ]))  # fmt: skip
+    assert np.allclose(observation[params_per_player*3+21:params_per_player*3+37],
+                       np.array([
+                           0,0,0,0,
+                           0,0,0,0,
+                           0,0,0,0.5,
+                           0,0,0,0
+                        ]))  # fmt: skip
 
 
 def test_others_cooltime():
@@ -369,6 +409,6 @@ def test_others_cooltime():
     observation = state_to_observation(state=state)
     print(observation)
     assert np.allclose(
-        observation["4"]["cooltime"],
+        observation[params_per_player * 4 + 37 : params_per_player * 4 + 38],
         np.array([5 / config.kill_cooltime]),
     )

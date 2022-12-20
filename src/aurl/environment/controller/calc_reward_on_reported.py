@@ -16,7 +16,7 @@ def calc_reward_on_reported(state: GameState) -> Dict[str, float]:
     rewards = {}
     for i, p in enumerate(state.players):
         if p.role == 0:
-            rewards[str(i)] = -20
+            rewards[str(i)] = -5
         elif p.role == 1:
-            rewards[str(i)] = 0
+            rewards[str(i)] = -1
     return rewards
