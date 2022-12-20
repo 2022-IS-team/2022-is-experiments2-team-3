@@ -6,4 +6,4 @@ pip install -e /workspace/2022-is-experiments2-team-3
 
 echo "Setup Completed"
 
-sleep infinity
+cd /workspace/2022-is-experiments2-team-3 && make run

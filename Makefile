@@ -11,7 +11,7 @@ start:
 .PHONY: up
 up:
 	@docker-compose build
-	@docker-compose up -d
+	@docker-compose up
 
 .PHONY: build
 build:
@@ -55,9 +55,9 @@ test:
 run:
 	# @pip install -e .
 	@python -m aurl \
-		--total_timesteps 10000000 \
+		--total_timesteps 8192000 \
 		--exp_path ./experiments
 
 .PHONY: run-exp
 run-exp:
-	@docker-compose up -d
+	@cd docker/exp && docker-compose build && docker-compose up -d
